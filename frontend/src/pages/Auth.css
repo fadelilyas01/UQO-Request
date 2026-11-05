@@ -1,0 +1,348 @@
+/* Page de connexion & inscription - Style Premium avec Parallax */
+
+/* Container avec perspective pour la parallaxe */
+.auth-container {
+    min-height: calc(100vh - 72px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    perspective: 1000px;
+    z-index: 1;
+}
+
+/* 
+   Couches de parallaxe 
+   (Copiées et adaptées de Home.css pour cohérence)
+*/
+.parallax-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: -1 !important;
+}
+
+.layer-bg {
+    background: radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.1) 0%, transparent 40%);
+    transform: translateZ(0);
+}
+
+.layer-1 {
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 10%),
+        radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 10%);
+    background-size: 100% 100%;
+    transform: translateZ(-50px) scale(1.5);
+    animation: float 20s ease-in-out infinite alternate;
+}
+
+.layer-2 {
+    background-image:
+        radial-gradient(circle at 70% 30%, rgba(168, 85, 247, 0.08) 0%, transparent 12%),
+        radial-gradient(circle at 30% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 12%);
+    transform: translateZ(-100px) scale(2);
+    animation: float-reverse 25s ease-in-out infinite alternate;
+}
+
+@keyframes float {
+    0% {
+        transform: translateZ(-50px) scale(1.5) translate(0, 0);
+    }
+
+    100% {
+        transform: translateZ(-50px) scale(1.5) translate(20px, -20px);
+    }
+}
+
+@keyframes float-reverse {
+    0% {
+        transform: translateZ(-100px) scale(2) translate(0, 0);
+    }
+
+    100% {
+        transform: translateZ(-100px) scale(2) translate(-30px, 30px);
+    }
+}
+
+
+.auth-card {
+    width: 100%;
+    max-width: 440px;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.7);
+    /* Plus transparent pour voir l'effet */
+    backdrop-filter: blur(20px);
+    /* Flou plus fort */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-xl);
+    z-index: 10;
+    transform-style: preserve-3d;
+}
+
+.dark .auth-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.5);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.auth-icon {
+    font-size: 3.5rem;
+    display: block;
+    margin-bottom: 1rem;
+    /* Petit rebond à l'apparition */
+    animation: iconBounce 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes iconBounce {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1) rotate(0);
+        opacity: 1;
+    }
+}
+
+.auth-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-500) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Animation focus sur les inputs */
+.form-group:focus-within .label {
+    color: var(--primary-500);
+}
+
+.auth-error {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--error-bg);
+    border-radius: var(--radius-md);
+    color: var(--error-text);
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-left: 4px solid var(--red-500);
+    animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes shake {
+
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+
+.btn-block {
+    width: 100%;
+    height: 50px;
+    /* Plus grand pour mobile */
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.auth-footer a {
+    color: var(--primary-500);
+    font-weight: 700;
+    position: relative;
+}
+
+.auth-footer a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: var(--primary-500);
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.3s ease-out;
+}
+
+.auth-footer a:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+/* Comptes de démo */
+.demo-accounts {
+    margin-top: 2rem;
+    padding: 1.25rem;
+    background: var(--bg-app);
+    /* Contraste avec la carte */
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--border-color);
+}
+
+.dark .demo-accounts {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.demo-accounts h4 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    color: var(--primary-500);
+}
+
+.demo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.demo-item code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.4rem;
+    color: var(--primary-600);
+}
+
+.dark .demo-item code {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary-300);
+}
+
+/* CSS for 3D Background Loader */
+.three-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    z-index: 0;
+    color: var(--primary-500);
+}
+
+.spinner-flower {
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle closest-side, var(--primary-500) 90%, #0000) 0% 50%,
+        radial-gradient(circle closest-side, var(--primary-500) 90%, #0000) 50% 50%,
+        radial-gradient(circle closest-side, var(--primary-500) 90%, #0000) 100% 50%;
+    background-size: calc(100%/3) 100%;
+    background-repeat: no-repeat;
+    animation: dots-loading 1s infinite linear;
+}
+
+@keyframes dots-loading {
+    33% {
+        background-size: calc(100%/3) 0%, calc(100%/3) 100%, calc(100%/3) 100%
+    }
+
+    50% {
+        background-size: calc(100%/3) 100%, calc(100%/3) 0%, calc(100%/3) 100%
+    }
+
+    66% {
+        background-size: calc(100%/3) 100%, calc(100%/3) 100%, calc(100%/3) 0%
+    }
+}
+
+.three-loader p {
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.8;
+    animation: pulse 2s infinite;
+}
+
+/* Lightweight Background fallback */
+.simple-bg-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background: radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 40%);
+}
+
+/* Responsive Auth */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 1rem;
+    }
+
+    .auth-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .auth-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .auth-icon {
+        font-size: 3rem;
+    }
+}

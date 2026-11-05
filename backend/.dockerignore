@@ -1,0 +1,64 @@
+# =============================================================================
+# Fichier .dockerignore pour le backend Django
+# =============================================================================
+# Ce fichier liste les fichiers et dossiers à exclure lors de la construction
+# de l'image Docker. Cela réduit la taille de l'image et améliore la sécurité.
+# =============================================================================
+
+# Environnement virtuel Python
+venv/
+.venv/
+env/
+.env/
+
+# Fichiers de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+
+# Fichiers de configuration locale
+.env
+.env.local
+.env.*.local
+
+# Base de données SQLite locale (ne pas inclure en production)
+*.sqlite3
+db.sqlite3
+
+# Fichiers de logs
+*.log
+
+# Fichiers de test et couverture
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE et éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation générée
+docs/_build/
+
+# Fichiers Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Fichiers temporaires
+*.tmp
+*.temp
+.cache/
+
+# Fichiers statiques collectés (générés au runtime)
+staticfiles/

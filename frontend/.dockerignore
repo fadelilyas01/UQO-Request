@@ -1,0 +1,60 @@
+# =============================================================================
+# Fichier .dockerignore pour le frontend React
+# =============================================================================
+# Ce fichier liste les fichiers et dossiers à exclure lors de la construction
+# de l'image Docker. Cela accélère la construction et réduit la taille.
+# =============================================================================
+
+# Dépendances Node.js (seront réinstallées dans le conteneur)
+node_modules/
+
+# Fichiers de build (seront régénérés)
+dist/
+build/
+
+# Fichiers de configuration locale
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# Fichiers de cache
+.cache/
+.parcel-cache/
+
+# Fichiers de logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE et éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Tests
+coverage/
+.nyc_output/
+
+# Fichiers Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+*.md
+!README.md
+
+# Fichiers ESLint/Prettier
+.eslintcache
+
+# Fichiers temporaires
+*.tmp
+*.temp

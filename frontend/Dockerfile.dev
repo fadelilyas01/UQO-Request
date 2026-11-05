@@ -1,0 +1,21 @@
+# =============================================================================
+# Dockerfile.dev pour le frontend React - Mode Developpement
+# Optimise pour le Hot Module Replacement (HMR) avec Vite
+# =============================================================================
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copie des manifestes de dependances
+COPY package*.json ./
+
+RUN npm install
+
+# Copie du code source (surchargeable par le volume docker-compose)
+COPY . .
+
+EXPOSE 5173
+
+# Demarrage du serveur de developpement avec ecoute sur toutes les interfaces
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

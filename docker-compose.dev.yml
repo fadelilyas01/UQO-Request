@@ -1,0 +1,94 @@
+# =============================================================================
+# Docker Compose - UQO-Requests (Mode Developpement)
+# Hot-reloading active pour React (Vite) et Django avec persistance locale
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------------------------
+  # BASE DE DONNEES POSTGRESQL (DEV)
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:15-alpine
+    container_name: uqo_db_dev
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-uqo_requests_db}
+      POSTGRES_USER: ${POSTGRES_USER:-uqo_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-uqo_dev_password}
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - uqo_network_dev
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-uqo_user} -d ${POSTGRES_DB:-uqo_requests_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # BACKEND DJANGO (DEV AVEC RUNSERVER & VOLUMES)
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: uqo_backend_dev
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-dev-local-key}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-uqo_user}:${POSTGRES_PASSWORD:-uqo_dev_password}@db:5432/${POSTGRES_DB:-uqo_requests_db}
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend,0.0.0.0
+      - CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks:
+      - uqo_network_dev
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "python manage.py migrate --noinput && 
+             python manage.py runserver 0.0.0.0:8000"
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # FRONTEND REACT (DEV AVEC VITE HMR)
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: uqo_frontend_dev
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - uqo_network_dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+# -----------------------------------------------------------------------------
+# RESEAU INTERNE DE DEVELOPPEMENT
+# -----------------------------------------------------------------------------
+networks:
+  uqo_network_dev:
+    driver: bridge
+    name: uqo_network_dev
+
+# -----------------------------------------------------------------------------
+# VOLUMES PERSISTANTS
+# -----------------------------------------------------------------------------
+volumes:
+  postgres_data_dev:
+    name: uqo_postgres_data_dev

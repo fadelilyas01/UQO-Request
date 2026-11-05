@@ -1,0 +1,27 @@
+# =============================================================================
+# Fichier .dockerignore global - UQO-Requests
+# =============================================================================
+# Ce fichier exclut les fichiers du contexte de construction Docker
+# au niveau racine du projet.
+# =============================================================================
+
+# Fichiers Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Environnement
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+
+# Fichiers temporaires
+*.log
+*.tmp

@@ -1,0 +1,170 @@
+/* Request Form styles */
+
+.form-container {
+    min-height: calc(100vh - 64px);
+    padding: 2rem;
+    background: var(--bg-primary);
+}
+
+.form-card {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.form-header {
+    margin-bottom: 2rem;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary-500);
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.form-header h1 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-header p {
+    color: var(--text-muted);
+}
+
+.request-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.form-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--red-100);
+    border: 1px solid var(--red-500);
+    border-radius: 0.75rem;
+    color: var(--red-700);
+    margin-bottom: 1rem;
+}
+
+.dark .form-error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+}
+
+.type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.type-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.type-option:hover {
+    border-color: var(--primary-400);
+}
+
+.type-option.selected {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+}
+
+.dark .type-option.selected {
+    background: rgba(66, 153, 225, 0.1);
+}
+
+.type-option input {
+    display: none;
+}
+
+.type-icon {
+    font-size: 1.5rem;
+}
+
+.type-option div {
+    display: flex;
+    flex-direction: column;
+}
+
+.type-option strong {
+    color: var(--text-primary);
+}
+
+.type-option span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Edit blocked state */
+.blocked-state {
+    text-align: center;
+    padding: 3rem;
+}
+
+.blocked-state span {
+    font-size: 4rem;
+}
+
+.blocked-state h3 {
+    color: var(--red-600);
+    margin: 1rem 0 0.5rem;
+}
+
+.blocked-state p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+    .type-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

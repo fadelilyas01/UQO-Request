@@ -1,0 +1,300 @@
+/* Admin Premium Customization - V2 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Variables matching frontend theme */
+:root {
+    --primary-50: #eef2ff;
+    --primary-100: #e0e7ff;
+    --primary-500: #6366f1;
+    --primary-600: #4f46e5;
+    --primary-700: #4338ca;
+    --primary-900: #312e81;
+    --bg-dark: #0f172a;
+    --bg-light: #f8fafc;
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    --radius-lg: 1rem;
+    --radius-md: 0.75rem;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    background-color: var(--bg-light);
+}
+
+/* ==================
+   LOGIN PAGE
+   ================== */
+.login-page {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-page::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15), transparent 70%);
+    animation: pulse 10s infinite alternate;
+}
+
+.login-box {
+    width: 420px !important;
+}
+
+.login-box .card {
+    border-radius: var(--radius-lg) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.login-logo a {
+    color: white !important;
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+/* ==================
+   SIDEBAR & NAVBAR
+   ================== */
+.main-sidebar {
+    background-color: var(--bg-dark) !important;
+    background-image: linear-gradient(180deg, var(--bg-dark) 0%, #1e1b4b 100%) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid #1e293b;
+}
+
+.brand-link {
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    display: flex;
+    align-items: center;
+    padding: 1.25rem 1rem !important;
+}
+
+.brand-image {
+    opacity: 0.9;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+    border-radius: 50%;
+}
+
+.main-header {
+    background: white !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    backdrop-filter: blur(10px);
+}
+
+.main-header.navbar-dark {
+    /* If dark mode is somehow forced on navbar */
+    background: var(--primary-600) !important;
+}
+
+.nav-link {
+    color: #cbd5e1 !important;
+    border-radius: var(--radius-md);
+    margin: 0.2rem 0.5rem;
+}
+
+.nav-link.active {
+    background: linear-gradient(90deg, var(--primary-600), var(--primary-500)) !important;
+    color: white !important;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3) !important;
+}
+
+/* ==================
+   MAIN CONTENT
+   ================== */
+.content-wrapper {
+    background-color: var(--bg-light) !important;
+}
+
+.content-header h1 {
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: #1e293b;
+    font-size: 1.8rem !important;
+}
+
+/* Modules / Cards */
+.card {
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid #e2e8f0 !important;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 1.5rem !important;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    border-color: var(--primary-100) !important;
+}
+
+.card-header {
+    background-color: white !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding: 1rem 1.25rem !important;
+}
+
+.card-title {
+    font-weight: 600 !important;
+    color: #334155;
+}
+
+/* Tables */
+.table {
+    margin-bottom: 0 !important;
+}
+
+.table thead th {
+    background-color: #f8fafc !important;
+    color: #64748b !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-top: none !important;
+    padding: 1rem !important;
+}
+
+.table tbody td {
+    padding: 1rem !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #475569;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--primary-50) !important;
+}
+
+/* Buttons */
+.btn {
+    border-radius: var(--radius-md) !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 500 !important;
+    box-shadow: none !important;
+    transition: all 0.2s;
+}
+
+.btn-primary,
+.btn-indigo {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-500)) !important;
+    border: none !important;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    border: none !important;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    border: none !important;
+}
+
+/* Inputs */
+.form-control {
+    border-radius: var(--radius-md) !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 0.6rem 1rem !important;
+}
+
+.form-control:focus {
+    border-color: var(--primary-500) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Filters and Search */
+.select2-container--default .select2-selection--single {
+    border-radius: var(--radius-md) !important;
+    border-color: #cbd5e1 !important;
+    height: 38px !important;
+}
+
+/* Footer */
+.main-footer {
+    background: white !important;
+    border-top: 1px solid #e2e8f0 !important;
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+/* ==================
+   SPACING & OPTIMIZATIONS
+   ================== */
+/* Button Spacing in Forms (Save, Save and continue, etc) */
+.submit-row {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 1rem !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 1rem 0 !important;
+    box-shadow: none !important;
+}
+
+.submit-row input,
+.submit-row a,
+.submit-row button {
+    margin: 0 !important;
+    /* Reset legacy margins in favor of gap */
+    float: none !important;
+}
+
+/* Object Tools (Top Right Buttons) */
+.object-tools {
+    display: flex !important;
+    gap: 0.75rem !important;
+    float: none !important;
+}
+
+.object-tools li {
+    margin: 0 !important;
+    height: auto !important;
+}
+
+.object-tools a {
+    border-radius: var(--radius-md) !important;
+    background-color: var(--primary-600) !important;
+    color: white !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.2s;
+}
+
+.object-tools a:hover {
+    background-color: var(--primary-500) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-1px);
+}
+
+/* Actions Dropdown Button Spacing */
+.actions button {
+    margin-left: 0.5rem !important;
+}

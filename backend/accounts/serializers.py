@@ -15,8 +15,20 @@ User = get_user_model()
 class UQOTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
     Serializer JWT personnalise restreignant l'authentification exclusivement
-    aux adresses courriel institutionnelles se terminant par @uqo.ca.
+    aux adresses courriel institutionnelles se terminant par @uqo.ca et
+    embarquant les claims de roles et de profil dans le jeton signe.
     """
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Injection securisee des claims de role et d'identite
+        token['email'] = user.email
+        token['role'] = user.role
+        token['username'] = user.username
+        token['full_name'] = user.get_full_name()
+        token['is_manager'] = user.is_manager
+        return token
 
     def validate(self, attrs):
         email = attrs.get('email', '').strip().lower()

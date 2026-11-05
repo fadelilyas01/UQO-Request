@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     # Dependances tierces
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
 
     # Applications metier
@@ -97,35 +98,49 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ============================================================================
-# BASE DE DONNEES - PostgreSQL
+# BASE DE DONNEES - PostgreSQL / SQLite (Developpement local)
 # ============================================================================
 DATABASE_URL = os.getenv('DATABASE_URL', '')
 
 if not DATABASE_URL:
-    raise ValueError(
-        "DATABASE_URL n'est pas configure. Une base PostgreSQL est requise pour cette application."
-    )
+    if DEBUG:
+        DATABASE_URL = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+    else:
+        raise ValueError(
+            "DATABASE_URL n'est pas configure. Une base de donnees est requise pour cette application."
+        )
 
-if not (DATABASE_URL.startswith('postgres://') or DATABASE_URL.startswith('postgresql://')):
-    raise ValueError(
-        f"Format DATABASE_URL non supporte: {DATABASE_URL}. Utiliser postgres://USER:PASSWORD@HOST:PORT/NAME"
-    )
-
-parsed_db = urlsplit(DATABASE_URL)
-db_name = parsed_db.path.lstrip('/')
-if not db_name or not parsed_db.hostname:
-    raise ValueError(f"URL de base de donnees invalide: {DATABASE_URL}")
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'USER': unquote(parsed_db.username or 'postgres'),
-        'PASSWORD': unquote(parsed_db.password or ''),
-        'HOST': parsed_db.hostname,
-        'PORT': str(parsed_db.port or 5432),
-        'NAME': unquote(db_name),
+if DATABASE_URL.startswith('sqlite://'):
+    raw_path = DATABASE_URL.replace('sqlite:///', '').replace('sqlite://', '')
+    db_file = Path(raw_path) if raw_path else (BASE_DIR / 'db.sqlite3')
+    if not db_file.is_absolute():
+        db_file = BASE_DIR / db_file
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': db_file,
+        }
     }
-}
+elif DATABASE_URL.startswith('postgres://') or DATABASE_URL.startswith('postgresql://'):
+    parsed_db = urlsplit(DATABASE_URL)
+    db_name = parsed_db.path.lstrip('/')
+    if not db_name or not parsed_db.hostname:
+        raise ValueError(f"URL de base de donnees invalide: {DATABASE_URL}")
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'USER': unquote(parsed_db.username or 'postgres'),
+            'PASSWORD': unquote(parsed_db.password or ''),
+            'HOST': parsed_db.hostname,
+            'PORT': str(parsed_db.port or 5432),
+            'NAME': unquote(db_name),
+        }
+    }
+else:
+    raise ValueError(
+        f"Format DATABASE_URL non supporte: {DATABASE_URL}. Utiliser postgres://... ou sqlite://..."
+    )
 
 # ============================================================================
 # MODELE UTILISATEUR PERSONNALISE
@@ -197,13 +212,14 @@ REST_FRAMEWORK = {
 }
 
 # ============================================================================
-# JSON WEB TOKENS (JWT)
+# JSON WEB TOKENS (JWT) - STANDARDS DE SECURITE RENFORCES (DUREE COURTE <= 15 MIN)
 # ============================================================================
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('ACCESS_TOKEN_LIFETIME', 60))),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('ACCESS_TOKEN_LIFETIME', 15))),
     'REFRESH_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('REFRESH_TOKEN_LIFETIME', 1440))),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
 }

@@ -4,7 +4,7 @@
  */
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { api, setTokens, clearTokens, getAccessToken } from '../api/client';
+import { api, setTokens, clearTokens, getAccessToken, getRefreshToken } from '../api/client';
 
 const AuthContext = createContext(null);
 
@@ -79,7 +79,15 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
+        const refresh = getRefreshToken();
+        if (refresh) {
+            try {
+                await api.logout(refresh);
+            } catch {
+                // Ignorer les erreurs de deconnexion reseau
+            }
+        }
         clearTokens();
         setUser(null);
     };

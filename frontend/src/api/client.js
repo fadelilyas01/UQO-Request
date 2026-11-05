@@ -90,6 +90,7 @@ export const api = {
     // Authentification & Profil
     login: (email, password) => apiClient.post('/auth/token/', { email, password }),
     register: (data) => apiClient.post('/auth/register/', data),
+    logout: (refresh) => apiClient.post('/auth/logout/', { refresh }),
     getProfile: () => apiClient.get('/auth/profile/'),
     updateProfile: (data) => apiClient.patch('/auth/profile/', data),
     changePassword: (data) => apiClient.post('/auth/change-password/', data),

@@ -11,9 +11,9 @@ from django.urls import path, include  # Fonctions pour définir les URLs
 
 # Vues JWT pour l'authentification par token
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,   # Vue pour obtenir une paire de tokens (access + refresh)
-    TokenRefreshView,      # Vue pour rafraîchir le token d'accès
+    TokenRefreshView,
 )
+from accounts.views import UQOTokenObtainPairView
 
 # ============================================================================
 # DÉFINITION DES PATTERNS D'URL
@@ -31,7 +31,7 @@ urlpatterns = [
     # POST /api/auth/token/ - Obtenir un token d'accès et un token de rafraîchissement
     # Corps de la requête: {"email": "...", "password": "..."}
     # Réponse: {"access": "...", "refresh": "..."}
-    path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/token/', UQOTokenObtainPairView.as_view(), name='token_obtain_pair'),
     
     # POST /api/auth/token/refresh/ - Rafraîchir le token d'accès
     # Corps de la requête: {"refresh": "..."}

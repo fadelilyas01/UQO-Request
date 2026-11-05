@@ -1,20 +1,39 @@
-import secrets
 """
-Commande d'initialisation de donnees de demonstration pour tests locaux.
+Commande d'initialisation des comptes d'administration et de gestion pour l'UQO.
 Usage: python manage.py create_demo_data
 """
 
 import os
+import secrets
+import string
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from requests_app.models import Request, StatusHistory, Comment
 
 User = get_user_model()
 
 
+def generate_compliant_password(length=14):
+    """
+    Genere un mot de passe aleatoire robuste conforme au validateur de complexite :
+    - Au moins 1 majuscule
+    - Au moins 1 minuscule
+    - Au moins 1 chiffre
+    - Au moins 1 caractere special
+    """
+    upper = secrets.choice(string.ascii_uppercase)
+    lower = secrets.choice(string.ascii_lowercase)
+    digit = secrets.choice(string.digits)
+    symbol = secrets.choice("!@#$%^&*-_=+")
+    all_chars = string.ascii_letters + string.digits + "!@#$%^&*-_=+"
+    rest = ''.join(secrets.choice(all_chars) for _ in range(length - 4))
+    pwd_list = list(upper + lower + digit + symbol + rest)
+    secrets.SystemRandom().shuffle(pwd_list)
+    return ''.join(pwd_list)
+
+
 class Command(BaseCommand):
-    help = 'Cree des donnees d\'exemple pour tester l\'application en developpement'
+    help = 'Initialise les comptes administrateur et gestionnaire de l\'UQO et purge les comptes par defaut'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -30,20 +49,32 @@ class Command(BaseCommand):
                 "Utilisez --force uniquement si vous etes certain de votre operation."
             )
 
-        self.stdout.write('Creation des donnees de demonstration...')
+        self.stdout.write(self.style.NOTICE('Initialisation des comptes officiels UQO...'))
 
-        admin_pwd = os.getenv('DEMO_ADMIN_PASSWORD') or secrets.token_urlsafe(16)
-        manager_pwd = os.getenv('DEMO_MANAGER_PASSWORD') or secrets.token_urlsafe(16)
-        user_pwd = os.getenv('DEMO_USER_PASSWORD') or secrets.token_urlsafe(16)
+        # 1. Purge des anciens comptes de demonstration et etudiants par defaut
+        old_emails = [
+            'admin@uqo.ca',
+            'gestionnaire@uqo.ca',
+            'jean.dupont@uqo.ca',
+            'sophie.martin@uqo.ca'
+        ]
+        deleted_count, _ = User.objects.filter(email__in=old_emails).delete()
+        if deleted_count > 0:
+            self.stdout.write(self.style.WARNING(
+                f'Purge effectuee : {deleted_count} ancien(s) compte(s) ou etudiant(s) par defaut supprime(s).'
+            ))
 
-        # 1. Utilisateur Administrateur
+        admin_pwd = os.getenv('DEMO_ADMIN_PASSWORD') or generate_compliant_password(14)
+        manager_pwd = os.getenv('DEMO_MANAGER_PASSWORD') or generate_compliant_password(14)
+
+        # 2. Compte Administrateur Officiel UQO
         admin, created = User.objects.get_or_create(
-            email='admin@uqo.ca',
+            email='ilyasfadel01@uqo.ca',
             defaults={
-                'username': 'admin',
-                'first_name': 'Admin',
-                'last_name': 'Système',
-                'role': 'MANAGER',
+                'username': 'ilyasfadel01',
+                'first_name': 'Ilyas',
+                'last_name': 'Fadel',
+                'role': User.Role.MANAGER,
                 'is_staff': True,
                 'is_superuser': True,
             }
@@ -51,115 +82,33 @@ class Command(BaseCommand):
         if created:
             admin.set_password(admin_pwd)
             admin.save()
-            self.stdout.write(self.style.SUCCESS(f'Compte administrateur cree : {admin.email}'))
+            self.stdout.write(self.style.SUCCESS('Compte administrateur cree avec succes :'))
+            self.stdout.write(f'  Email       : {admin.email}')
+            self.stdout.write(f'  Mot de passe: {admin_pwd}')
+        else:
+            self.stdout.write(self.style.WARNING(f'Compte administrateur existant : {admin.email}'))
 
-        # 2. Utilisateur Gestionnaire
+        # 3. Compte Gestionnaire Officiel UQO
         manager, created = User.objects.get_or_create(
-            email='gestionnaire@uqo.ca',
+            email='fadelilyas@uqo.ca',
             defaults={
-                'username': 'gestionnaire',
-                'first_name': 'Marie',
-                'last_name': 'Tremblay',
-                'role': 'MANAGER',
+                'username': 'fadelilyas',
+                'first_name': 'Ilyas',
+                'last_name': 'Fadel',
+                'role': User.Role.MANAGER,
+                'is_staff': True,
+                'is_superuser': False,
             }
         )
         if created:
             manager.set_password(manager_pwd)
             manager.save()
-            self.stdout.write(self.style.SUCCESS(f'Compte gestionnaire cree : {manager.email}'))
+            self.stdout.write(self.style.SUCCESS('Compte gestionnaire cree avec succes :'))
+            self.stdout.write(f'  Email       : {manager.email}')
+            self.stdout.write(f'  Mot de passe: {manager_pwd}')
+        else:
+            self.stdout.write(self.style.WARNING(f'Compte gestionnaire existant : {manager.email}'))
 
-        # 3. Utilisateurs etudiants
-        user1, created = User.objects.get_or_create(
-            email='jean.dupont@uqo.ca',
-            defaults={
-                'username': 'jean.dupont',
-                'first_name': 'Jean',
-                'last_name': 'Dupont',
-                'role': 'USER',
-            }
-        )
-        if created:
-            user1.set_password(user_pwd)
-            user1.save()
-            self.stdout.write(self.style.SUCCESS(f'Compte etudiant 1 cree : {user1.email}'))
-
-        user2, created = User.objects.get_or_create(
-            email='sophie.martin@uqo.ca',
-            defaults={
-                'username': 'sophie.martin',
-                'first_name': 'Sophie',
-                'last_name': 'Martin',
-                'role': 'USER',
-            }
-        )
-        if created:
-            user2.set_password(user_pwd)
-            user2.save()
-            self.stdout.write(self.style.SUCCESS(f'Compte etudiant 2 cree : {user2.email}'))
-
-        # 4. Demandes de demonstration avec differents statuts
-        req1, created = Request.objects.get_or_create(
-            title="Demande de report d'examen",
-            user=user1,
-            defaults={
-                'type': 'ACADEMIC',
-                'description': "Demande de report d'examen final pour conflit horaire avec une evaluation concomitante.",
-                'status': 'SUBMITTED',
-            }
-        )
-        if created:
-            self.stdout.write(self.style.SUCCESS(f'Demande creee : {req1.title}'))
-
-        req2, created = Request.objects.get_or_create(
-            title="Accès aux ressources de calcul",
-            user=user1,
-            defaults={
-                'type': 'TECHNICAL',
-                'description': "Demande d'attribution de ressources de calcul intensif pour le projet terminal de session.",
-                'status': 'IN_PROGRESS',
-            }
-        )
-        if created:
-            StatusHistory.objects.create(
-                request=req2,
-                changed_by=manager,
-                old_status='SUBMITTED',
-                new_status='IN_PROGRESS'
-            )
-            Comment.objects.create(
-                request=req2,
-                author=manager,
-                content="Demande prise en charge. Analyse des quotas disponibles en cours."
-            )
-            self.stdout.write(self.style.SUCCESS(f'Demande creee : {req2.title}'))
-
-        req3, created = Request.objects.get_or_create(
-            title="Révision de note - Évaluation 2",
-            user=user2,
-            defaults={
-                'type': 'ACADEMIC',
-                'description': "Demande de revision pour l'evaluation pratique suite a une erreur de bareme signalee.",
-                'status': 'APPROVED',
-            }
-        )
-        if created:
-            StatusHistory.objects.create(
-                request=req3,
-                changed_by=manager,
-                old_status='SUBMITTED',
-                new_status='IN_PROGRESS'
-            )
-            StatusHistory.objects.create(
-                request=req3,
-                changed_by=manager,
-                old_status='IN_PROGRESS',
-                new_status='APPROVED'
-            )
-            Comment.objects.create(
-                request=req3,
-                author=manager,
-                content="Apres revision du bareme par l'enseignant responsable, la note est ajustee."
-            )
-            self.stdout.write(self.style.SUCCESS(f'Demande creee : {req3.title}'))
-
-        self.stdout.write(self.style.SUCCESS('Initialisation des donnees terminee avec succes.'))
+        self.stdout.write(self.style.SUCCESS(
+            'Initialisation terminee. L\'espace etudiant est libre pour inscription personnelle via @uqo.ca.'
+        ))

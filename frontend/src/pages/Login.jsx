@@ -26,10 +26,16 @@ export default function Login() {
             return;
         }
 
+        const cleanEmail = email.trim().toLowerCase();
+        if (!cleanEmail.endsWith('@uqo.ca')) {
+            setError('Accès restreint : Seules les adresses institutionnelles se terminant par @uqo.ca sont autorisées.');
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
-        const result = await login(email.trim(), password);
+        const result = await login(cleanEmail, password);
         setLoading(false);
 
         if (result.success) {
@@ -57,17 +63,18 @@ export default function Login() {
 
                 <form onSubmit={handleSubmit} className="auth-form" noValidate>
                     <div className="form-group">
-                        <label htmlFor="email" className="label">Adresse email</label>
+                        <label htmlFor="email" className="label">Adresse courriel institutionnelle</label>
                         <input
                             type="email"
                             id="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="input"
-                            placeholder="nom.prenom@uqo.ca"
+                            placeholder="prenom.nom@uqo.ca"
                             required
                             autoFocus
                         />
+                        <span className="hint">Réservé exclusivement aux membres de l'UQO (@uqo.ca)</span>
                     </div>
 
                     <div className="form-group">
@@ -98,9 +105,8 @@ export default function Login() {
                 </form>
 
                 <div className="auth-footer">
-                    <p>Pas encore de compte ? <Link to="/register">Créer un compte</Link></p>
+                    <p>Pas encore de compte étudiant ? <Link to="/register">Créer un compte</Link></p>
                 </div>
-
             </div>
         </div>
     );

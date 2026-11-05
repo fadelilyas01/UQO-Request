@@ -5,12 +5,14 @@ Definit le modele User personnalise avec gestion RBAC (USER / MANAGER) et authen
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from .validators import validate_uqo_email
 
 
 class User(AbstractUser):
     """
     Modele utilisateur personnalise etendant AbstractUser.
     Utilise l'adresse courriel comme identifiant principal de connexion.
+    Impose la restriction exclusive au domaine institutionnel @uqo.ca.
     """
 
     class Role(models.TextChoices):
@@ -20,6 +22,7 @@ class User(AbstractUser):
     email = models.EmailField(
         'Adresse email',
         unique=True,
+        validators=[validate_uqo_email],
         error_messages={
             'unique': 'Un utilisateur avec cette adresse email existe déjà.',
         }
@@ -40,6 +43,17 @@ class User(AbstractUser):
         verbose_name = 'Utilisateur'
         verbose_name_plural = 'Utilisateurs'
         ordering = ['-date_joined']
+
+    def clean(self):
+        super().clean()
+        if self.email:
+            self.email = self.email.strip().lower()
+            validate_uqo_email(self.email)
+
+    def save(self, *args, **kwargs):
+        if self.email:
+            self.email = self.email.strip().lower()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.get_full_name()} ({self.email})"

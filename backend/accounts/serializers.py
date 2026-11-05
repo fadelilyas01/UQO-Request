@@ -4,10 +4,30 @@ Conversion et validation des objets utilisateurs pour les flux d'authentificatio
 """
 
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from .validators import validate_uqo_email
 
 User = get_user_model()
+
+
+class UQOTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Serializer JWT personnalise restreignant l'authentification exclusivement
+    aux adresses courriel institutionnelles se terminant par @uqo.ca.
+    """
+
+    def validate(self, attrs):
+        email = attrs.get('email', '').strip().lower()
+        try:
+            validate_uqo_email(email)
+        except Exception:
+            raise serializers.ValidationError({
+                'detail': 'Seules les adresses institutionnelles se terminant par @uqo.ca sont autorisées.'
+            })
+        attrs['email'] = email
+        return super().validate(attrs)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,7 +53,8 @@ class UserSerializer(serializers.ModelSerializer):
 class UserRegistrationSerializer(serializers.ModelSerializer):
     """
     Validation et creation de compte pour les nouveaux utilisateurs.
-    Valide les contraintes de complexite et de confirmation du mot de passe.
+    Valide les contraintes de complexite et de confirmation du mot de passe
+    ainsi que l'appartenance exclusive au domaine @uqo.ca.
     """
 
     password = serializers.CharField(
@@ -62,6 +83,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'first_name': {'required': True},
             'last_name': {'required': True},
         }
+
+    def validate_email(self, value):
+        """Valide que l'adresse courriel appartient exclusivement au domaine @uqo.ca."""
+        clean_email = value.strip().lower()
+        validate_uqo_email(clean_email)
+        if User.objects.filter(email=clean_email).exists():
+            raise serializers.ValidationError('Un utilisateur avec cette adresse email existe déjà.')
+        return clean_email
 
     def validate(self, attrs):
         """Valide la concordance des deux saisies du mot de passe."""

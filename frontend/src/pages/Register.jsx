@@ -1,5 +1,7 @@
 /**
  * Page d'inscription de l'application UQO-Requests.
+ * Restreinte exclusivement aux adresses courriel institutionnelles @uqo.ca
+ * avec contrainte renforcée de complexité du mot de passe.
  */
 
 import { useState } from 'react';
@@ -23,6 +25,17 @@ export default function Register() {
     const { register, error, setError } = useAuth();
     const navigate = useNavigate();
 
+    // Vérification en temps réel des règles de complexité du mot de passe
+    const passwordChecks = {
+        length: formData.password.length >= 10,
+        upper: /[A-Z]/.test(formData.password),
+        lower: /[a-z]/.test(formData.password),
+        digit: /[0-9]/.test(formData.password),
+        symbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(formData.password),
+    };
+
+    const isPasswordValid = Object.values(passwordChecks).every(Boolean);
+
     const handleChange = (e) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
         setError(null);
@@ -31,11 +44,16 @@ export default function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const cleanEmail = formData.email.trim().toLowerCase();
+        const cleanUsername = formData.username.trim();
+        const cleanFirstName = formData.first_name.trim();
+        const cleanLastName = formData.last_name.trim();
+
         if (
-            !formData.first_name.trim() ||
-            !formData.last_name.trim() ||
-            !formData.email.trim() ||
-            !formData.username.trim() ||
+            !cleanFirstName ||
+            !cleanLastName ||
+            !cleanEmail ||
+            !cleanUsername ||
             !formData.password ||
             !formData.password_confirm
         ) {
@@ -43,13 +61,22 @@ export default function Register() {
             return;
         }
 
+        // 1. Validation stricte du domaine institutionnel @uqo.ca
+        const uqoEmailRegex = /^[a-zA-Z0-9_.+-]+@uqo\.ca$/;
+        if (!cleanEmail.endsWith('@uqo.ca') || !uqoEmailRegex.test(cleanEmail)) {
+            setError('Accès restreint : Seules les adresses institutionnelles se terminant par @uqo.ca sont autorisées.');
+            return;
+        }
+
+        // 2. Validation stricte de concordance des mots de passe
         if (formData.password !== formData.password_confirm) {
             setError('Les mots de passe ne correspondent pas.');
             return;
         }
 
-        if (formData.password.length < 8) {
-            setError('Le mot de passe doit contenir au moins 8 caractères.');
+        // 3. Validation de complexité du mot de passe
+        if (!isPasswordValid) {
+            setError('Le mot de passe ne respecte pas les critères de sécurité exigés (minimum 10 caractères, majuscule, minuscule, chiffre et symbole).');
             return;
         }
 
@@ -57,10 +84,10 @@ export default function Register() {
         setError(null);
 
         const result = await register({
-            email: formData.email.trim(),
-            username: formData.username.trim(),
-            first_name: formData.first_name.trim(),
-            last_name: formData.last_name.trim(),
+            email: cleanEmail,
+            username: cleanUsername,
+            first_name: cleanFirstName,
+            last_name: cleanLastName,
             password: formData.password,
             password_confirm: formData.password_confirm,
         });
@@ -82,7 +109,7 @@ export default function Register() {
                 <div className="auth-card card animate-scale">
                     <div className="auth-header">
                         <span className="auth-icon">✅</span>
-                        <h1>Compte créé avec succès !</h1>
+                        <h1>Compte étudiant créé avec succès !</h1>
                         <p>Redirection vers la page de connexion...</p>
                     </div>
                 </div>
@@ -97,8 +124,8 @@ export default function Register() {
             <div className="auth-card card animate-in">
                 <div className="auth-header">
                     <span className="auth-icon">📝</span>
-                    <h1>Inscription</h1>
-                    <p>Rejoignez la plateforme UQO-Requests</p>
+                    <h1>Inscription Étudiant</h1>
+                    <p>Rejoignez la plateforme officielle UQO-Requests</p>
                 </div>
 
                 {error && (
@@ -133,7 +160,7 @@ export default function Register() {
                                 value={formData.last_name}
                                 onChange={handleChange}
                                 className="input"
-                                placeholder="Dupont"
+                                placeholder="Tremblay"
                                 required
                             />
                         </div>
@@ -148,13 +175,13 @@ export default function Register() {
                             value={formData.username}
                             onChange={handleChange}
                             className="input"
-                            placeholder="jdupont"
+                            placeholder="jtremblay01"
                             required
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="email" className="label">Adresse email UQO</label>
+                        <label htmlFor="email" className="label">Adresse courriel institutionnelle UQO</label>
                         <input
                             type="email"
                             id="email"
@@ -162,13 +189,14 @@ export default function Register() {
                             value={formData.email}
                             onChange={handleChange}
                             className="input"
-                            placeholder="jean.dupont@uqo.ca"
+                            placeholder="prenom.nom@uqo.ca"
                             required
                         />
+                        <span className="auth-hint">Seules les adresses se terminant par @uqo.ca sont acceptées.</span>
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password" className="label">Mot de passe</label>
+                        <label htmlFor="password" className="label">Mot de passe complexe</label>
                         <input
                             type="password"
                             id="password"
@@ -176,9 +204,29 @@ export default function Register() {
                             value={formData.password}
                             onChange={handleChange}
                             className="input"
-                            placeholder="Au moins 8 caractères"
+                            placeholder="••••••••••••"
                             required
                         />
+
+                        {/* Indicateur visuel des critères de mot de passe */}
+                        <div className="password-rules">
+                            <div className="password-rules-title">Exigences de sécurité du mot de passe :</div>
+                            <div className={`password-rule-item ${passwordChecks.length ? 'valid' : ''}`}>
+                                <span>{passwordChecks.length ? '✓' : '○'}</span> Au moins 10 caractères
+                            </div>
+                            <div className={`password-rule-item ${passwordChecks.upper ? 'valid' : ''}`}>
+                                <span>{passwordChecks.upper ? '✓' : '○'}</span> Au moins une lettre majuscule (A-Z)
+                            </div>
+                            <div className={`password-rule-item ${passwordChecks.lower ? 'valid' : ''}`}>
+                                <span>{passwordChecks.lower ? '✓' : '○'}</span> Au moins une lettre minuscule (a-z)
+                            </div>
+                            <div className={`password-rule-item ${passwordChecks.digit ? 'valid' : ''}`}>
+                                <span>{passwordChecks.digit ? '✓' : '○'}</span> Au moins un chiffre (0-9)
+                            </div>
+                            <div className={`password-rule-item ${passwordChecks.symbol ? 'valid' : ''}`}>
+                                <span>{passwordChecks.symbol ? '✓' : '○'}</span> Au moins un caractère spécial (!@#$%^&*...)
+                            </div>
+                        </div>
                     </div>
 
                     <div className="form-group">
@@ -190,7 +238,7 @@ export default function Register() {
                             value={formData.password_confirm}
                             onChange={handleChange}
                             className="input"
-                            placeholder="••••••••"
+                            placeholder="••••••••••••"
                             required
                         />
                     </div>
@@ -205,7 +253,7 @@ export default function Register() {
                                 <span className="spinner-small"></span>
                                 Inscription en cours...
                             </>
-                        ) : "S'inscrire"}
+                        ) : "Créer mon compte étudiant"}
                     </button>
                 </form>
 

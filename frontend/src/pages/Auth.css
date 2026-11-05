@@ -346,3 +346,44 @@
         font-size: 3rem;
     }
 }
+/* Regles de securite et complexite du mot de passe */
+.auth-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.password-rules {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.dark .password-rules {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.password-rules-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.password-rule-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+}
+
+.password-rule-item.valid {
+    color: #059669;
+    font-weight: 600;
+}

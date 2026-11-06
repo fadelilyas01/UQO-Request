@@ -23,21 +23,24 @@ User = get_user_model()
 class UQOTokenObtainPairView(TokenObtainPairView):
     """
     Vue d'authentification JWT personnalisee restreinte au domaine @uqo.ca.
+    Cadencee strictement a 10 requetes/minute par IP pour bloquer toute attaque brute-force.
     """
 
     permission_classes = [AllowAny]
     serializer_class = UQOTokenObtainPairSerializer
+    throttle_scope = 'auth'
 
 
 class RegisterView(generics.CreateAPIView):
     """
     Point de terminaison pour l'inscription d'un nouvel utilisateur.
-    Accessible publiquement (AllowAny).
+    Cadencee a 10 requetes/minute pour bloquer le flood de creations de comptes.
     """
 
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = UserRegistrationSerializer
+    throttle_scope = 'auth'
 
     def create(self, request, *args, **kwargs):
         """Valide la charge utile et persiste le nouvel utilisateur."""
@@ -72,9 +75,11 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 class ChangePasswordView(APIView):
     """
     Point de terminaison pour le renouvellement du mot de passe utilisateur.
+    Protege contre les attaques par force brute avec limitation de requetes.
     """
 
     permission_classes = [IsAuthenticated]
+    throttle_scope = 'auth'
 
     def post(self, request):
         """Valide l'ancien mot de passe puis applique le nouveau mot de passe."""

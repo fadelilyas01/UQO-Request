@@ -5,6 +5,7 @@ Validation, serialisation et regles metier de transition de statut pour les dema
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.utils.html import strip_tags
 from .models import Request, StatusHistory, Comment
 
 User = get_user_model()
@@ -70,7 +71,12 @@ class CommentCreateSerializer(serializers.ModelSerializer):
     def validate_content(self, value):
         if not value or not value.strip():
             raise serializers.ValidationError("Le contenu du commentaire ne peut pas être vide.")
-        return value.strip()
+        cleaned = strip_tags(value.strip())
+        if not cleaned:
+            raise serializers.ValidationError("Le commentaire ne peut pas contenir uniquement du balisage HTML.")
+        if len(cleaned) > 2000:
+            raise serializers.ValidationError("Le commentaire ne peut pas dépasser 2000 caractères.")
+        return cleaned
 
 
 class RequestListSerializer(serializers.ModelSerializer):
@@ -148,16 +154,22 @@ class RequestCreateSerializer(serializers.ModelSerializer):
     def validate_title(self, value):
         if not value or not value.strip():
             raise serializers.ValidationError("Le titre ne peut pas être vide.")
-        if len(value.strip()) < 5:
+        cleaned = strip_tags(value.strip())
+        if len(cleaned) < 5:
             raise serializers.ValidationError("Le titre doit contenir au moins 5 caractères.")
-        return value.strip()
+        if len(cleaned) > 255:
+            raise serializers.ValidationError("Le titre ne peut pas dépasser 255 caractères.")
+        return cleaned
 
     def validate_description(self, value):
         if not value or not value.strip():
             raise serializers.ValidationError("La description ne peut pas être vide.")
-        if len(value.strip()) < 20:
+        cleaned = strip_tags(value.strip())
+        if len(cleaned) < 20:
             raise serializers.ValidationError("La description doit contenir au moins 20 caractères.")
-        return value.strip()
+        if len(cleaned) > 10000:
+            raise serializers.ValidationError("La description ne peut pas dépasser 10 000 caractères.")
+        return cleaned
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
@@ -175,16 +187,22 @@ class RequestUpdateSerializer(serializers.ModelSerializer):
     def validate_title(self, value):
         if not value or not value.strip():
             raise serializers.ValidationError("Le titre ne peut pas être vide.")
-        if len(value.strip()) < 5:
+        cleaned = strip_tags(value.strip())
+        if len(cleaned) < 5:
             raise serializers.ValidationError("Le titre doit contenir au moins 5 caractères.")
-        return value.strip()
+        if len(cleaned) > 255:
+            raise serializers.ValidationError("Le titre ne peut pas dépasser 255 caractères.")
+        return cleaned
 
     def validate_description(self, value):
         if not value or not value.strip():
             raise serializers.ValidationError("La description ne peut pas être vide.")
-        if len(value.strip()) < 20:
+        cleaned = strip_tags(value.strip())
+        if len(cleaned) < 20:
             raise serializers.ValidationError("La description doit contenir au moins 20 caractères.")
-        return value.strip()
+        if len(cleaned) > 10000:
+            raise serializers.ValidationError("La description ne peut pas dépasser 10 000 caractères.")
+        return cleaned
 
 
 class StatusChangeSerializer(serializers.Serializer):
@@ -192,6 +210,14 @@ class StatusChangeSerializer(serializers.Serializer):
 
     new_status = serializers.ChoiceField(choices=Request.Status.choices)
     comment = serializers.CharField(required=False, allow_blank=True)
+
+    def validate_comment(self, value):
+        if value:
+            cleaned = strip_tags(value.strip())
+            if len(cleaned) > 1000:
+                raise serializers.ValidationError("Le motif ne peut pas dépasser 1000 caractères.")
+            return cleaned
+        return ""
 
     def validate_new_status(self, value):
         request_obj = self.context.get('request_obj')

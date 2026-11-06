@@ -1,240 +1,291 @@
 /**
- * Page de création de demande de l'application UQO-Requests.
- * 
- * Cette page permet aux utilisateurs de soumettre une nouvelle demande
- * en remplissant un formulaire avec titre, type et description.
- * 
- * Fonctionnalités:
- * - Formulaire avec validation
- * - Sélection du type de demande avec icônes
- * - Indicateurs de longueur minimale
- * - Redirection vers le détail après création
- * - Gestion des erreurs de validation
- * 
- * @author UQO
- * @version 1.0.0
+ * Page de creation de requete professionnelle pour UQO-Requests.
+ * Integre validation en direct, protection anti-double clic via RobustButton,
+ * retours toast et gestion securisee des erreurs API.
  */
 
-// Importation des hooks React
 import { useState } from 'react';
-
-// Importation des composants de routage
 import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+    FiArrowLeft, 
+    FiFileText, 
+    FiFolder, 
+    FiMonitor, 
+    FiTag, 
+    FiCheckCircle, 
+    FiAlertCircle, 
+    FiShield 
+} from 'react-icons/fi';
+import { HiOutlineAcademicCap } from 'react-icons/hi2';
+import { api, getSafeApiErrorMessage } from '../api/client';
+import { cn } from '../utils/cn';
+import RobustButton from '../components/RobustButton';
+import { useToast } from '../context/ToastContext';
 
-// Importation du client API
-import { api } from '../api/client';
-
-// Importation des styles CSS
-import './RequestForm.css';
-
-// ============================================================================
-// CONFIGURATION
-// ============================================================================
-
-/**
- * Configuration des types de demandes disponibles.
- * Chaque type a une valeur, un label, une icône et une description.
- */
 const REQUEST_TYPES = [
-    { value: 'ACADEMIC', label: 'Académique', icon: '🎓', desc: 'Notes, examens, cours' },
-    { value: 'ADMINISTRATIVE', label: 'Administrative', icon: '📁', desc: 'Documents, attestations' },
-    { value: 'TECHNICAL', label: 'Technique', icon: '💻', desc: 'Accès, équipements' },
-    { value: 'OTHER', label: 'Autre', icon: '📌', desc: 'Autres demandes' },
+    { 
+        value: 'ACADEMIC', 
+        label: 'Académique', 
+        Icon: HiOutlineAcademicCap, 
+        desc: 'Évaluation, reprise d\'examen, inscription aux cours' 
+    },
+    { 
+        value: 'ADMINISTRATIVE', 
+        label: 'Administrative', 
+        Icon: FiFolder, 
+        desc: 'Relevé de notes, attestation d\'études, formulaires officiels' 
+    },
+    { 
+        value: 'TECHNICAL', 
+        label: 'Technique', 
+        Icon: FiMonitor, 
+        desc: 'Accès portail, courriel étudiant, équipement de laboratoire' 
+    },
+    { 
+        value: 'OTHER', 
+        label: 'Autre requête', 
+        Icon: FiTag, 
+        desc: 'Renseignements généraux ou demande particulière' 
+    },
 ];
 
-// ============================================================================
-// COMPOSANT
-// ============================================================================
-
-/**
- * Composant CreateRequest - Formulaire de création de demande.
- * 
- * @returns {JSX.Element} Le formulaire de création
- */
 export default function CreateRequest() {
-    // -------------------------------------------------------------------------
-    // ÉTAT LOCAL
-    // -------------------------------------------------------------------------
-
-    // Données du formulaire
     const [formData, setFormData] = useState({
-        title: '',           // Titre de la demande
-        type: 'ACADEMIC',    // Type de demande (par défaut: Académique)
-        description: ''      // Description détaillée
+        title: '',
+        type: 'ACADEMIC',
+        description: '',
     });
 
-    // État de chargement (pendant la soumission)
     const [loading, setLoading] = useState(false);
-
-    // Message d'erreur
     const [error, setError] = useState(null);
-
-    // Hook de navigation
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
-    // -------------------------------------------------------------------------
-    // GESTIONNAIRES D'ÉVÉNEMENTS
-    // -------------------------------------------------------------------------
-
-    /**
-     * Gère les changements dans les champs du formulaire.
-     * 
-     * @param {Event} e - L'événement de changement
-     */
     const handleChange = (e) => {
-        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-        setError(null);  // Effacer les erreurs précédentes
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        if (error) setError(null);
     };
 
-    /**
-     * Gère la soumission du formulaire.
-     * Valide les données puis envoie la requête à l'API.
-     * 
-     * @param {Event} e - L'événement de soumission
-     */
+    const isTitleValid = formData.title.trim().length >= 5;
+    const isDescValid = formData.description.trim().length >= 20;
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validation: Vérifier que le titre et la description sont remplis
-        if (!formData.title || !formData.description) {
-            setError('Veuillez remplir tous les champs obligatoires.');
+        if (!formData.title.trim() || !formData.description.trim()) {
+            setError('Veuillez compléter l\'ensemble des champs obligatoires.');
             return;
         }
 
-        // Validation: Vérifier la longueur minimale du titre
-        if (formData.title.length < 5) {
-            setError('Le titre doit contenir au moins 5 caractères.');
+        if (!isTitleValid) {
+            setError('Le titre doit comporter au minimum 5 caractères.');
             return;
         }
 
-        // Validation: Vérifier la longueur minimale de la description
-        if (formData.description.length < 20) {
-            setError('La description doit contenir au moins 20 caractères.');
+        if (!isDescValid) {
+            setError('La description détaillée doit comporter au moins 20 caractères pour un traitement adéquat.');
             return;
         }
 
-        // Soumettre la demande
         setLoading(true);
+        setError(null);
+
         try {
-            const response = await api.createRequest(formData);
-            // Rediriger vers le détail de la demande créée avec un message de succès
+            const response = await api.createRequest({
+                title: formData.title.trim(),
+                type: formData.type,
+                description: formData.description.trim(),
+            });
+
+            showToast({
+                type: 'success',
+                title: 'Requête transmise',
+                message: 'Votre dossier a été enregistré et assigné aux services compétents.',
+            });
+
             navigate(`/requests/${response.data.id}`, {
-                state: { message: 'Demande créée avec succès!' }
+                state: { message: 'Votre requête a été transmise avec succès au service concerné.' }
             });
         } catch (err) {
-            // Extraire le message d'erreur de la réponse API
-            setError(
-                err.response?.data?.title?.[0] ||
-                err.response?.data?.description?.[0] ||
-                err.response?.data?.detail ||
-                'Erreur lors de la création'
-            );
+            setError(getSafeApiErrorMessage(err, "Impossible d'enregistrer la requête. Veuillez vérifier votre connexion."));
         } finally {
             setLoading(false);
         }
     };
 
-    // -------------------------------------------------------------------------
-    // RENDU
-    // -------------------------------------------------------------------------
-
     return (
-        <div className="form-container">
-            <div className="form-card card animate-in">
-                {/* En-tête du formulaire */}
-                <div className="form-header">
-                    {/* Lien de retour */}
-                    <Link to="/dashboard" className="back-link">
-                        ← Retour au tableau de bord
-                    </Link>
-                    <h1><span>📝</span> Nouvelle demande</h1>
-                    <p>Remplissez le formulaire ci-dessous pour soumettre une nouvelle demande</p>
+        <div className="max-w-3xl mx-auto py-4">
+            <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 mb-6 transition-colors"
+            >
+                <FiArrowLeft className="w-4 h-4" />
+                <span>Retour au tableau de bord</span>
+            </Link>
+
+            <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
+                className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md p-6 sm:p-8 space-y-8"
+            >
+                {/* En-tete du Formulaire */}
+                <div className="pb-6 border-b border-slate-100 dark:border-slate-800">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-2 ring-1 ring-emerald-500/20">
+                        <FiShield className="w-3.5 h-3.5" />
+                        <span>Transmission Directe & Chiffrée</span>
+                    </div>
+                    <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                        Déposer une nouvelle requête
+                    </h1>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        Précisez la nature de votre demande pour une prise en charge rapide par le personnel administratif.
+                    </p>
                 </div>
 
-                {/* Message d'erreur (si présent) */}
+                {/* Message d'Erreur Sécurisé */}
                 {error && (
-                    <div className="form-error">
-                        <span>⚠️</span>{error}
-                    </div>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-start gap-3 text-sm text-rose-800 dark:text-rose-200"
+                    >
+                        <FiAlertCircle className="w-5 h-5 shrink-0 text-rose-600 dark:text-rose-400 mt-0.5" />
+                        <div className="space-y-1">
+                            <span className="font-semibold block">Attention requise :</span>
+                            <span>{error}</span>
+                        </div>
+                    </motion.div>
                 )}
 
-                {/* Formulaire de création */}
-                <form onSubmit={handleSubmit} className="request-form" noValidate>
-                    {/* Champ titre */}
-                    <div className="form-group">
-                        <label className="label">Titre de la demande</label>
+                <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+                    {/* Titre */}
+                    <div>
+                        <label htmlFor="title" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+                            Objet / Titre explicite de la requête *
+                        </label>
                         <input
                             type="text"
+                            id="title"
                             name="title"
                             value={formData.title}
                             onChange={handleChange}
-                            className="input"
-                            placeholder="Ex: Demande de report d'examen"
+                            placeholder="Ex : Demande de révision de note - INF6003"
                             required
-                            minLength={5}
+                            className="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
-                        <span className="hint">Minimum 5 caractères</span>
-                    </div>
-
-                    {/* Sélection du type de demande */}
-                    <div className="form-group">
-                        <label className="label">Type de demande</label>
-                        <div className="type-grid">
-                            {REQUEST_TYPES.map(type => (
-                                <label
-                                    key={type.value}
-                                    className={`type-option ${formData.type === type.value ? 'selected' : ''}`}
-                                >
-                                    <input
-                                        type="radio"
-                                        name="type"
-                                        value={type.value}
-                                        checked={formData.type === type.value}
-                                        onChange={handleChange}
-                                    />
-                                    <span className="type-icon">{type.icon}</span>
-                                    <div>
-                                        <strong>{type.label}</strong>
-                                        <span>{type.desc}</span>
-                                    </div>
-                                </label>
-                            ))}
+                        <div className="flex justify-between items-center mt-1.5 text-xs">
+                            <span className="text-slate-400">Soyez concis et mentionnez le sigle du cours si applicable.</span>
+                            <span className={cn(
+                                formData.title.length < 5 ? 'text-slate-400' : 'text-emerald-600 font-medium'
+                            )}>
+                                {formData.title.length} / 5 car. min
+                            </span>
                         </div>
                     </div>
 
-                    {/* Champ description */}
-                    <div className="form-group">
-                        <label className="label">Description détaillée</label>
+                    {/* Type de Requête */}
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                            Catégorie administrative *
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {REQUEST_TYPES.map((type) => {
+                                const isSelected = formData.type === type.value;
+                                const { Icon } = type;
+
+                                return (
+                                    <label
+                                        key={type.value}
+                                        className={cn(
+                                            'relative flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-150',
+                                            isSelected
+                                                ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-500 ring-1 ring-emerald-500 shadow-2xs'
+                                                : 'bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                                        )}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="type"
+                                            value={type.value}
+                                            checked={isSelected}
+                                            onChange={handleChange}
+                                            className="sr-only"
+                                        />
+                                        <div className={cn(
+                                            'p-2 rounded-lg shrink-0 mt-0.5',
+                                            isSelected
+                                                ? 'bg-emerald-600 text-white'
+                                                : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                                        )}>
+                                            <Icon className="w-5 h-5" />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                {type.label}
+                                            </span>
+                                            <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                                                {type.desc}
+                                            </span>
+                                        </div>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                            <label htmlFor="description" className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                Description détaillée & Contexte *
+                            </label>
+                            <span className={cn(
+                                'text-xs',
+                                formData.description.length < 20 ? 'text-slate-400' : 'text-emerald-600 font-medium'
+                            )}>
+                                {formData.description.length} / 20 car. min
+                            </span>
+                        </div>
                         <textarea
+                            id="description"
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
-                            className="input"
-                            placeholder="Décrivez votre demande en détail..."
-                            required
-                            minLength={20}
                             rows={6}
+                            placeholder="Décrivez précisément votre situation, en incluant le sigle du cours, le groupe ou toute référence pertinente..."
+                            required
+                            className="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
-                        <span className="hint">
-                            Minimum 20 caractères. Soyez aussi précis que possible.
-                        </span>
+                        <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1.5">
+                            <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                            <span>Les renseignements transmis sont traités confidentiellement selon la Loi 25.</span>
+                        </p>
                     </div>
 
-                    {/* Boutons d'action */}
-                    <div className="form-actions">
-                        <Link to="/dashboard" className="btn btn-secondary">
+                    {/* Boutons d'Action Robustes */}
+                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
+                        <Link
+                            to="/dashboard"
+                            className="px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                        >
                             Annuler
                         </Link>
-                        <button
+                        <RobustButton
                             type="submit"
-                            className="btn btn-primary"
-                            disabled={loading}
+                            variant="primary"
+                            loading={loading}
+                            loadingText="Transmission sécurisée en cours..."
+                            disabled={!isTitleValid || !isDescValid}
+                            icon={FiFileText}
                         >
-                            {loading ? 'Envoi...' : '📤 Soumettre la demande'}
-                        </button>
+                            Transmettre ma requête
+                        </RobustButton>
                     </div>
                 </form>
-            </div>
+            </motion.div>
         </div>
     );
 }

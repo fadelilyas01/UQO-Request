@@ -84,9 +84,9 @@ jobs:
 
       - name: Validation du chargement Django
         env:
-          SECRET_KEY: ci-test-secret-key-not-for-production-use-only
+          SECRET_KEY: django-ci-synthetic-validation-key-random-918237
           DEBUG: 'True'
-          DATABASE_URL: postgres://postgres:password@localhost:5432/uqo_test_db
+          DATABASE_URL: sqlite:///ci_test_db.sqlite3
         run: |
           python -c "import config.settings as s; print('Django settings loaded successfully')"
 

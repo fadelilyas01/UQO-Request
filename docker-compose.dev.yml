@@ -39,8 +39,8 @@ services:
     container_name: uqo_backend_dev
     environment:
       - DEBUG=True
-      - SECRET_KEY=${SECRET_KEY:-django-insecure-dev-local-key}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-uqo_user}:${POSTGRES_PASSWORD:-uqo_dev_password}@db:5432/${POSTGRES_DB:-uqo_requests_db}
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=${DATABASE_URL}
       - ALLOWED_HOSTS=localhost,127.0.0.1,backend,0.0.0.0
       - CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
     depends_on:

@@ -13,6 +13,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.reverse import reverse
+from django.db import transaction
 
 from .models import Request, StatusHistory, Comment
 from .serializers import (
@@ -29,8 +30,9 @@ from accounts.permissions import IsManager
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def api_root(request, format=None):
-    """Point d'entree d'information et d'inspection de l'API."""
+    """Point d'entree securise d'information et d'inspection de l'API."""
     return Response({
         'status': 'online',
         'service': 'UQO-Requests API',
@@ -100,7 +102,7 @@ class RequestViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
-        """Cree une demande pour un utilisateur regulier."""
+        """Cree une demande pour un utilisateur regulier avec garantie transactionnelle."""
         if request.user.role == 'MANAGER':
             return Response(
                 {'error': 'Les gestionnaires ne sont pas autorisés à créer des demandes directes.'},
@@ -109,7 +111,8 @@ class RequestViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
+        with transaction.atomic():
+            instance = serializer.save()
 
         return Response(
             RequestDetailSerializer(instance, context={'request': request}).data,
@@ -117,22 +120,24 @@ class RequestViewSet(viewsets.ModelViewSet):
         )
 
     def update(self, request, *args, **kwargs):
-        """Met a jour une demande au statut SUBMITTED."""
+        """Met a jour une demande au statut SUBMITTED avec garantie transactionnelle."""
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        with transaction.atomic():
+            serializer.save()
 
         return Response(
             RequestDetailSerializer(instance, context={'request': request}).data
         )
 
     def destroy(self, request, *args, **kwargs):
-        """Supprime une demande au statut SUBMITTED."""
+        """Supprime une demande au statut SUBMITTED de maniere atomique."""
         instance = self.get_object()
-        instance.delete()
+        with transaction.atomic():
+            instance.delete()
 
         return Response(
             {'message': 'Demande supprimée avec succès.'},
@@ -143,7 +148,7 @@ class RequestViewSet(viewsets.ModelViewSet):
     def change_status(self, request, pk=None):
         """
         Transition de statut executee par un gestionnaire.
-        Consigne automatiquement l'operation dans StatusHistory.
+        Consigne automatiquement l'operation dans StatusHistory de maniere atomique.
         """
         request_obj = self.get_object()
 
@@ -157,22 +162,23 @@ class RequestViewSet(viewsets.ModelViewSet):
         new_status = serializer.validated_data['new_status']
         comment_text = serializer.validated_data.get('comment', '').strip()
 
-        request_obj.status = new_status
-        request_obj.save()
+        with transaction.atomic():
+            request_obj.status = new_status
+            request_obj.save()
 
-        StatusHistory.objects.create(
-            request=request_obj,
-            changed_by=request.user,
-            old_status=old_status,
-            new_status=new_status
-        )
-
-        if comment_text:
-            Comment.objects.create(
+            StatusHistory.objects.create(
                 request=request_obj,
-                author=request.user,
-                content=comment_text
+                changed_by=request.user,
+                old_status=old_status,
+                new_status=new_status
             )
+
+            if comment_text:
+                Comment.objects.create(
+                    request=request_obj,
+                    author=request.user,
+                    content=comment_text
+                )
 
         return Response({
             'message': f"Statut changé de '{dict(Request.Status.choices).get(old_status)}' "
@@ -206,11 +212,12 @@ class RequestViewSet(viewsets.ModelViewSet):
             serializer = CommentCreateSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
 
-            comment = Comment.objects.create(
-                request=request_obj,
-                author=request.user,
-                content=serializer.validated_data['content']
-            )
+            with transaction.atomic():
+                comment = Comment.objects.create(
+                    request=request_obj,
+                    author=request.user,
+                    content=serializer.validated_data['content']
+                )
 
             return Response(
                 CommentSerializer(comment).data,

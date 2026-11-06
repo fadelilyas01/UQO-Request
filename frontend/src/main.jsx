@@ -1,33 +1,40 @@
-/*
- * main.jsx - Le point d'entrée de notre app React
- * 
- * C'est le premier fichier qui s'execute quand on lance l'app.
- * Il crée la racine React et monte notre composant App.
- * 
- * On utilise StrictMode pour nous aider à trouver les bugs
- * pendant le developpement (ça fait rien en prod).
+/**
+ * main.jsx - Point d'entrée principal de l'application React UQO-Requests.
+ * Monte la racine React dans le StrictMode avec Barrière d'Erreur Globale (ErrorBoundary)
+ * et gestionnaires de neutralisation des rejets non interceptés (Zéro-Crash standard).
  */
 
-// React pour le StrictMode
-import React from 'react'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import ErrorBoundary from './components/ErrorBoundary';
+import './index.css';
 
-// ReactDOM pour afficher notre app dans le HTML
-import ReactDOM from 'react-dom/client'
+// Neutralisation globale des rejets de Promesses non interceptés (Fail-Secure)
+if (typeof window !== 'undefined') {
+    window.addEventListener('unhandledrejection', (event) => {
+        console.error('[Système Zéro-Crash] Rejet de Promesse intercepté globalement:', {
+            reason: event.reason?.message || event.reason,
+            timestamp: new Date().toISOString(),
+        });
+        // Empêche le plantage brutal de l'environnement d'exécution
+        event.preventDefault();
+    });
 
-// Notre composant principal
-import App from './App'
+    window.addEventListener('error', (event) => {
+        console.error('[Système Zéro-Crash] Exception globale interceptée:', {
+            message: event.message,
+            filename: event.filename,
+            lineno: event.lineno,
+            timestamp: new Date().toISOString(),
+        });
+    });
+}
 
-// Les styles globaux de l'app
-import './index.css'
-
-/*
- * On crée la racine React et on lance l'app
- * 
- * getElementById('root') => c'est la div dans index.html
- * StrictMode => ca active des verifications supplementaires
- */
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <App />
+        <ErrorBoundary title="UQO-Requests - Sécurité applicative">
+            <App />
+        </ErrorBoundary>
     </React.StrictMode>,
-)
+);

@@ -1,10 +1,12 @@
 /**
  * Hook personnalise useRequests pour UQO-Requests.
  * Centralise les requetes API et le calcul d'indicateurs de synthese pour les demandes.
+ * Totalement securise par safeArray (Zéro-Crash garanti).
  */
 
 import { useState, useCallback } from 'react';
-import { api } from '../api/client';
+import { api, getSafeApiErrorMessage } from '../api/client';
+import { safeArray } from '../utils/safeUtils';
 
 export function useRequests() {
     const [requests, setRequests] = useState([]);
@@ -16,25 +18,27 @@ export function useRequests() {
         setError(null);
         try {
             const response = await api.getRequests(filters);
-            const data = response.data.results || response.data;
-            setRequests(data);
-        } catch {
-            setError('Impossible de charger les demandes. Veuillez réessayer ultérieurement.');
+            const data = response.data?.results ?? response.data;
+            setRequests(safeArray(data));
+        } catch (err) {
+            setError(getSafeApiErrorMessage(err, 'Impossible de charger les demandes. Veuillez réessayer ultérieurement.'));
         } finally {
             setLoading(false);
         }
     }, []);
 
+    const safeRequestsList = safeArray(requests);
+
     const stats = {
-        total: requests.length,
-        submitted: requests.filter((r) => r.status === 'SUBMITTED').length,
-        inProgress: requests.filter((r) => r.status === 'IN_PROGRESS').length,
-        approved: requests.filter((r) => r.status === 'APPROVED').length,
-        rejected: requests.filter((r) => r.status === 'REJECTED').length,
+        total: safeRequestsList.length,
+        submitted: safeRequestsList.filter((r) => r?.status === 'SUBMITTED').length,
+        inProgress: safeRequestsList.filter((r) => r?.status === 'IN_PROGRESS').length,
+        approved: safeRequestsList.filter((r) => r?.status === 'APPROVED').length,
+        rejected: safeRequestsList.filter((r) => r?.status === 'REJECTED').length,
     };
 
     return {
-        requests,
+        requests: safeRequestsList,
         loading,
         error,
         fetchRequests,

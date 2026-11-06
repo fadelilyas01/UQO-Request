@@ -1,6 +1,7 @@
 /**
  * Composant de protection et de controle d'acces des routes de l'application.
- * Verifie l'etat d'authentification et les autorisations par role RBAC.
+ * Verifie l'etat d'authentification et applique les regles RBAC strictes
+ * cote frontend en conformite avec le backend.
  */
 
 import { Navigate, useLocation } from 'react-router-dom';
@@ -16,9 +17,11 @@ export default function ProtectedRoute({
 
     if (loading) {
         return (
-            <div className="loading-container">
-                <div className="loading-spinner" />
-                <p>Chargement des autorisations...</p>
+            <div className="flex flex-col items-center justify-center min-h-[50vh] py-16">
+                <div className="w-10 h-10 border-3 border-emerald-500/20 border-t-emerald-600 rounded-full animate-spin mb-3" />
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                    Validation des autorisations de sécurité...
+                </p>
             </div>
         );
     }

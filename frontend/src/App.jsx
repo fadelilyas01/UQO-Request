@@ -1,16 +1,23 @@
 /**
  * Point d'entree applicatif et routage principal pour UQO-Requests.
+ * Configure le theme, l'authentification, les notifications Toast,
+ * la surveillance de connectivite hors-ligne et les barrieres d'erreurs (ErrorBoundary).
  */
 
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './context/ToastContext';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
+import OfflineBanner from './components/OfflineBanner';
 
-// Chargement differe des vues pour optimiser le temps de chargement initial
+// Chargement differe des vues pour optimiser le bundle initial
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
@@ -24,15 +31,41 @@ import './index.css';
 
 function RouteLoader() {
     return (
-        <div style={{
-            height: '100vh',
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-        }}>
-            <div className="loading-ring" style={{ width: '50px', height: '50px' }} />
+        <div className="flex flex-col items-center justify-center min-h-[50vh] py-16">
+            <div className="relative flex items-center justify-center">
+                <div className="w-12 h-12 border-3 border-emerald-500/20 border-t-emerald-600 rounded-full animate-spin" />
+                <img alt="Chargement en cours" src="/logos/uqo-symbol.svg" className="absolute w-5 h-5 object-contain opacity-70" />
+            </div>
+            <p className="mt-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+                Chargement sécurisé en cours...
+            </p>
         </div>
+    );
+}
+
+function NotFoundView() {
+    return (
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-20 text-center max-w-md mx-auto"
+        >
+            <span className="text-6xl font-black text-emerald-600 dark:text-emerald-400 mb-2 font-mono">
+                404
+            </span>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                Page introuvable
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                L'adresse demandée n'existe pas ou a été déplacée vers un nouvel emplacement sécurisé.
+            </p>
+            <Link 
+                to="/" 
+                className="px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            >
+                Retour à l'accueil
+            </Link>
+        </motion.div>
     );
 }
 
@@ -42,100 +75,111 @@ function AppRoutes() {
 
     useEffect(() => {
         if (!loading) {
-            const timer = setTimeout(() => setShowLoader(false), 400);
+            const timer = setTimeout(() => setShowLoader(false), 300);
             return () => clearTimeout(timer);
         }
     }, [loading]);
 
-    return (
-        <>
-            {showLoader && (
-                <div className={`loading-container ${!loading ? 'fade-out' : ''}`}>
-                    <div className="loader-content">
-                        <div className="brand-logo">📋</div>
-                        <div className="loading-ring"></div>
-                        <div className="loading-pulse">UQO-Requests</div>
-                    </div>
+    if (showLoader && loading) {
+        return (
+            <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-slate-950 transition-opacity">
+                <div className="flex flex-col items-center gap-3">
+                    <img alt="Logo officiel UQO" src="/logos/uqo-symbol.svg" className="w-14 h-14 object-contain animate-pulse" />
+                    <div className="w-8 h-8 border-3 border-emerald-500/20 border-t-emerald-600 rounded-full animate-spin" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-2">
+                        UQO-Requests
+                    </span>
                 </div>
-            )}
+            </div>
+        );
+    }
 
-            {!loading && (
-                <Suspense fallback={<RouteLoader />}>
-                    <Routes>
-                        <Route
-                            path="/login"
-                            element={
-                                isAuthenticated
-                                    ? <Navigate to={isManager ? '/manager' : '/dashboard'} replace />
-                                    : <Login />
-                            }
-                        />
-                        <Route
-                            path="/register"
-                            element={
-                                isAuthenticated
-                                    ? <Navigate to={isManager ? '/manager' : '/dashboard'} replace />
-                                    : <Register />
-                            }
-                        />
+    return (
+        <Suspense fallback={<RouteLoader />}>
+            <Routes>
+                <Route
+                    path="/login"
+                    element={
+                        <ErrorBoundary level="page">
+                            {isAuthenticated
+                                ? <Navigate to={isManager ? '/manager' : '/dashboard'} replace />
+                                : <Login />}
+                        </ErrorBoundary>
+                    }
+                />
+                <Route
+                    path="/register"
+                    element={
+                        <ErrorBoundary level="page">
+                            {isAuthenticated
+                                ? <Navigate to={isManager ? '/manager' : '/dashboard'} replace />
+                                : <Register />}
+                        </ErrorBoundary>
+                    }
+                />
 
-                        <Route
-                            path="/dashboard"
-                            element={
-                                <ProtectedRoute requireUser>
-                                    <Dashboard />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/requests/new"
-                            element={
-                                <ProtectedRoute requireUser>
-                                    <CreateRequest />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/requests/:id/edit"
-                            element={
-                                <ProtectedRoute requireUser>
-                                    <EditRequest />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/requests/:id"
-                            element={
-                                <ProtectedRoute>
-                                    <RequestDetail />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/manager"
-                            element={
-                                <ProtectedRoute requireManager>
-                                    <ManagerDashboard />
-                                </ProtectedRoute>
-                            }
-                        />
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute requireUser>
+                            <ErrorBoundary level="page">
+                                <Dashboard />
+                            </ErrorBoundary>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/requests/new"
+                    element={
+                        <ProtectedRoute requireUser>
+                            <ErrorBoundary level="page">
+                                <CreateRequest />
+                            </ErrorBoundary>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/requests/:id/edit"
+                    element={
+                        <ProtectedRoute requireUser>
+                            <ErrorBoundary level="page">
+                                <EditRequest />
+                            </ErrorBoundary>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/requests/:id"
+                    element={
+                        <ProtectedRoute>
+                            <ErrorBoundary level="page">
+                                <RequestDetail />
+                            </ErrorBoundary>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/manager"
+                    element={
+                        <ProtectedRoute requireManager>
+                            <ErrorBoundary level="page">
+                                <ManagerDashboard />
+                            </ErrorBoundary>
+                        </ProtectedRoute>
+                    }
+                />
 
-                        <Route path="/" element={<Home />} />
-
-                        <Route
-                            path="*"
-                            element={
-                                <div className="not-found animate-in">
-                                    <h1>404</h1>
-                                    <p>Page non trouvée</p>
-                                    <a href="/" className="btn btn-primary">Retour à l'accueil</a>
-                                </div>
-                            }
-                        />
-                    </Routes>
-                </Suspense>
-            )}
-        </>
+                <Route
+                    path="/"
+                    element={
+                        <ErrorBoundary level="page">
+                            <Home />
+                        </ErrorBoundary>
+                    }
+                />
+                <Route path="*" element={<NotFoundView />} />
+            </Routes>
+        </Suspense>
     );
 }
 
@@ -143,14 +187,18 @@ export default function App() {
     return (
         <BrowserRouter>
             <ThemeProvider>
-                <AuthProvider>
-                    <div className="app">
-                        <Navbar />
-                        <main className="main-content">
-                            <AppRoutes />
-                        </main>
-                    </div>
-                </AuthProvider>
+                <ToastProvider>
+                    <AuthProvider>
+                        <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-500 selection:text-white transition-colors duration-200">
+                            <OfflineBanner />
+                            <Navbar />
+                            <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+                                <AppRoutes />
+                            </main>
+                            <Footer />
+                        </div>
+                    </AuthProvider>
+                </ToastProvider>
             </ThemeProvider>
         </BrowserRouter>
     );

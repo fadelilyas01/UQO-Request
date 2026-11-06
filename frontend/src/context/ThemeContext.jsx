@@ -1,18 +1,21 @@
 /**
  * Contexte de gestion de theme (sombre / clair) pour UQO-Requests.
- * Persiste la preference dans le localStorage et applique les classes au documentElement.
+ * Persiste la preference de maniere securisee via safeStorage (Zéro-Crash en navigation privee)
+ * et applique les classes au documentElement.
  */
 
 import { createContext, useContext, useState, useEffect } from 'react';
+import { safeStorage } from '../utils/safeUtils';
 
 const ThemeContext = createContext(null);
+const THEME_STORAGE_KEY = 'uqo_theme';
 
 export function ThemeProvider({ children }) {
     const [theme, setTheme] = useState(() => {
-        const saved = localStorage.getItem('uqo_theme');
-        if (saved) return saved;
+        const saved = safeStorage.getItem(THEME_STORAGE_KEY);
+        if (saved && (saved === 'dark' || saved === 'light')) return saved;
 
-        if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             return 'dark';
         }
 
@@ -20,10 +23,13 @@ export function ThemeProvider({ children }) {
     });
 
     useEffect(() => {
+        if (typeof document === 'undefined') return;
+
         const root = document.documentElement;
         root.classList.remove('light', 'dark');
         root.classList.add(theme);
-        localStorage.setItem('uqo_theme', theme);
+        root.style.colorScheme = theme;
+        safeStorage.setItem(THEME_STORAGE_KEY, theme);
     }, [theme]);
 
     const toggleTheme = () => {

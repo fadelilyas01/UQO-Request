@@ -227,7 +227,7 @@ export default function CommandPalette({ isOpen, onClose }) {
                                         className={cn(
                                             'w-full flex items-center justify-between p-3 rounded-xl text-left transition-colors cursor-pointer',
                                             isSelected
-                                                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100'
+                                                ? 'bg-uqo-50 dark:bg-uqo-dark text-uqo-900 dark:text-uqo-accent-100'
                                                 : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                                         )}
                                     >
@@ -235,7 +235,7 @@ export default function CommandPalette({ isOpen, onClose }) {
                                             <div className={cn(
                                                 'p-2 rounded-lg shrink-0',
                                                 isSelected
-                                                    ? 'bg-emerald-600 text-white'
+                                                    ? 'bg-uqo-600 text-white'
                                                     : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                                             )}>
                                                 <Icon className="w-4 h-4" />
@@ -255,7 +255,7 @@ export default function CommandPalette({ isOpen, onClose }) {
                                                 {item.category}
                                             </span>
                                             {isSelected && (
-                                                <FiArrowRight className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                                <FiArrowRight className="w-4 h-4 text-uqo-600 dark:text-uqo-accent-400" />
                                             )}
                                         </div>
                                     </button>

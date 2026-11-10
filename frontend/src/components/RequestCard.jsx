@@ -24,17 +24,17 @@ const TYPE_CONFIG = {
     ACADEMIC: { 
         label: 'Académique', 
         Icon: HiOutlineAcademicCap,
-        color: 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60'
+        color: 'text-uqo-700 dark:text-uqo-accent-300 bg-uqo-50 dark:bg-uqo-dark border-uqo-200 dark:border-uqo-800/60'
     },
     ADMINISTRATIVE: { 
         label: 'Administrative', 
         Icon: FiFolder,
-        color: 'text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60'
+        color: 'text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800/60'
     },
     TECHNICAL: { 
         label: 'Technique', 
         Icon: FiMonitor,
-        color: 'text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-800/60'
+        color: 'text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800/60'
     },
     OTHER: { 
         label: 'Générale', 
@@ -61,7 +61,7 @@ export default function RequestCard({
             whileHover={{ y: -3, transition: { duration: 0.15, ease: 'easeOut' } }}
             whileTap={{ scale: 0.99 }}
             className={cn(
-                'group relative flex flex-col justify-between p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500',
+                'group relative flex flex-col justify-between p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uqo-500',
                 className
             )}
         >
@@ -80,7 +80,7 @@ export default function RequestCard({
                 </div>
 
                 {/* Titre */}
-                <h3 className="text-base font-semibold text-slate-900 dark:text-white line-clamp-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                <h3 className="text-base font-semibold text-slate-900 dark:text-white line-clamp-2 group-hover:text-uqo-600 dark:group-hover:text-uqo-accent-400 transition-colors">
                     {request.title || 'Requête sans titre'}
                 </h3>
 
@@ -110,7 +110,7 @@ export default function RequestCard({
                     )}
                 </div>
 
-                <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium group-hover:translate-x-0.5 transition-transform">
+                <div className="flex items-center gap-1 text-uqo-600 dark:text-uqo-accent-400 font-medium group-hover:translate-x-0.5 transition-transform">
                     <span>Consulter</span>
                     <FiArrowRight className="w-3.5 h-3.5" />
                 </div>

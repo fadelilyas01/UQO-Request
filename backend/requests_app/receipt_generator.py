@@ -56,12 +56,13 @@ def generate_receipt_pdf(request_obj):
 
     styles = getSampleStyleSheet()
 
-    # Couleurs institutionnelles UQO
-    UQO_GREEN = colors.HexColor('#006847')
-    UQO_DARK = colors.HexColor('#0f172a')
+    # Couleurs institutionnelles UQO (Charte officielle)
+    UQO_PRIMARY = colors.HexColor('#005477') # Bleu Pétrole officiel UQO
+    UQO_ACCENT = colors.HexColor('#2accae')  # Vert Menthe & Sarcelle Outaouais
+    UQO_DARK = colors.HexColor('#182128')    # Anthracite / Noir Bleuté UQO
     UQO_SLATE = colors.HexColor('#475569')
-    UQO_BG_LIGHT = colors.HexColor('#f8fafc')
-    UQO_BORDER = colors.HexColor('#e2e8f0')
+    UQO_BG_LIGHT = colors.HexColor('#f0f7fa')# Fond clair teinté UQO
+    UQO_BORDER = colors.HexColor('#bce0ec')  # Bordure douce UQO
 
     # Styles typographiques
     title_style = ParagraphStyle(
@@ -70,7 +71,7 @@ def generate_receipt_pdf(request_obj):
         fontName='Helvetica-Bold',
         fontSize=17,
         leading=21,
-        textColor=UQO_GREEN,
+        textColor=UQO_PRIMARY,
         alignment=1, # Centré
         spaceAfter=6
     )
@@ -150,7 +151,7 @@ def generate_receipt_pdf(request_obj):
     ]))
     story.append(header_table)
     story.append(Spacer(1, 10))
-    story.append(HRFlowable(width="100%", thickness=1.5, color=UQO_GREEN, spaceAfter=15))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=UQO_PRIMARY, spaceAfter=15))
 
     # 2. Titre de l'attestation
     story.append(Paragraph("ATTESTATION OFFICIELLE DE DÉPÔT DE REQUÊTE", title_style))
@@ -232,15 +233,15 @@ def generate_receipt_pdf(request_obj):
     now_local = datetime.now(tz_uqo).strftime('%d/%m/%Y %H:%M:%S')
 
     security_data = [
-        [Paragraph("<b>SCEAU D'INTÉGRITÉ NUMÉRIQUE & CONFORMITÉ LOI 25</b>", ParagraphStyle('SecTitle', parent=body_style, textColor=UQO_GREEN, fontName='Helvetica-Bold'))],
-        [Paragraph(f"<b>Empreinte SHA-256 certifiée :</b><br/><font color='#0f172a'><b>{formatted_hash}</b></font>", code_style)],
+        [Paragraph("<b>SCEAU D'INTÉGRITÉ NUMÉRIQUE & CONFORMITÉ LOI 25</b>", ParagraphStyle('SecTitle', parent=body_style, textColor=UQO_PRIMARY, fontName='Helvetica-Bold'))],
+        [Paragraph(f"<b>Empreinte SHA-256 certifiée :</b><br/><font color='#182128'><b>{formatted_hash}</b></font>", code_style)],
         [Paragraph(f"Norme : <b>SHA-256 (FIPS 180-4 / RFC 6234)</b> • Horodatage de génération du scellé : <b>{now_local}</b>", ParagraphStyle('SecSub', parent=body_style, fontSize=8, textColor=UQO_SLATE))],
         [Paragraph("Ce document scellé fait foi de l'enregistrement effectif de la requête et de l'intégrité intégrale de son contenu au moment du dépôt aux registres officiels de l'UQO.", ParagraphStyle('SecDesc', parent=body_style, fontSize=8, leading=11, textColor=UQO_DARK))]
     ]
     t_security = Table(security_data, colWidths=[530])
     t_security.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#ecfdf5')),
-        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#10b981')),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#eefbf8')),
+        ('BOX', (0, 0), (-1, -1), 1, UQO_ACCENT),
         ('TOPPADDING', (0, 0), (-1, -1), 6),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('LEFTPADDING', (0, 0), (-1, -1), 10),

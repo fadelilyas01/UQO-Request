@@ -53,8 +53,9 @@ export default function Home() {
                 className="relative text-center max-w-4xl mx-auto px-4"
             >
                 {/* Badge Institutionnel */}
-                <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-semibold mb-6 shadow-2xs backdrop-blur-xs">
-                    <img alt="Symbole officiel UQO" src="/logos/uqo-symbol.svg" className="w-4 h-4 object-contain" />
+                <motion.div variants={itemVariants} className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-uqo-600/30 bg-uqo-50/80 dark:bg-uqo-dark/80 text-uqo-700 dark:text-uqo-accent-300 text-xs font-semibold mb-6 shadow-2xs backdrop-blur-xs">
+                    <img alt="Symbole officiel UQO" src="/logos/uqo-symbol-blue.svg" className="h-4 w-auto object-contain dark:hidden" />
+                    <img alt="Symbole officiel UQO" src="/logos/uqo-symbol-white.svg" className="h-4 w-auto object-contain hidden dark:inline" />
                     <span>Portail officiel de gestion des requêtes • UQO</span>
                 </motion.div>
 
@@ -82,7 +83,7 @@ export default function Home() {
                     {isAuthenticated ? (
                         <Link
                             to={isManager ? "/manager" : "/dashboard"}
-                            className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl text-base font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-sm hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                            className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl text-base font-semibold text-white bg-uqo-600 hover:bg-uqo-700 active:bg-uqo-800 shadow-sm hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uqo-500 focus-visible:ring-offset-2"
                         >
                             <span>Accéder à mon espace</span>
                             <FiArrowRight className="w-5 h-5" />
@@ -91,7 +92,7 @@ export default function Home() {
                         <>
                             <Link
                                 to="/login"
-                                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl text-base font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-sm hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl text-base font-semibold text-white bg-uqo-600 hover:bg-uqo-700 active:bg-uqo-800 shadow-sm hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uqo-500 focus-visible:ring-offset-2"
                             >
                                 <span>Connexion étudiante & personnel</span>
                                 <FiArrowRight className="w-5 h-5" />
@@ -113,15 +114,15 @@ export default function Home() {
                     className="mt-12 pt-8 border-t border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs text-slate-500 dark:text-slate-400 font-medium"
                 >
                     <span className="flex items-center gap-1.5">
-                        <FiShield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <FiShield className="w-4 h-4 text-uqo-600 dark:text-uqo-accent-400" />
                         <span>Chiffrement certifié TLS 1.3</span>
                     </span>
                     <span className="flex items-center gap-1.5">
-                        <FiUserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <FiUserCheck className="w-4 h-4 text-uqo-600 dark:text-uqo-accent-400" />
                         <span>Contrôle d'accès RBAC renforcé</span>
                     </span>
                     <span className="flex items-center gap-1.5">
-                        <FiCheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <FiCheckCircle className="w-4 h-4 text-uqo-600 dark:text-uqo-accent-400" />
                         <span>Conforme Loi 25 (Québec)</span>
                     </span>
                 </motion.div>
@@ -141,7 +142,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                     {/* Carte 1 */}
                     <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-md transition-shadow">
-                        <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-5 ring-1 ring-emerald-500/20">
+                        <div className="w-12 h-12 rounded-xl bg-uqo-50 dark:bg-uqo-dark text-uqo-600 dark:text-uqo-accent-400 flex items-center justify-center mb-5 ring-1 ring-uqo-500/20">
                             <FiZap className="w-6 h-6" />
                         </div>
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
@@ -167,7 +168,7 @@ export default function Home() {
 
                     {/* Carte 3 */}
                     <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-md transition-shadow">
-                        <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-5 ring-1 ring-indigo-500/20">
+                        <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-5 ring-1 ring-teal-500/20">
                             <FiShield className="w-6 h-6" />
                         </div>
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
@@ -184,7 +185,7 @@ export default function Home() {
             <section className="max-w-7xl mx-auto px-4 py-8">
                 <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900/60 p-8 sm:p-12">
                     <div className="max-w-2xl mx-auto text-center mb-10">
-                        <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block mb-1">
+                        <span className="text-xs font-bold uppercase tracking-wider text-uqo-600 dark:text-uqo-accent-400 block mb-1">
                             Cycle de vie d'une requête
                         </span>
                         <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
@@ -194,7 +195,7 @@ export default function Home() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
                         <div className="flex flex-col items-center text-center space-y-3">
-                            <div className="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+                            <div className="w-10 h-10 rounded-full bg-uqo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
                                 1
                             </div>
                             <h3 className="font-semibold text-slate-900 dark:text-white text-base">
@@ -206,7 +207,7 @@ export default function Home() {
                         </div>
 
                         <div className="flex flex-col items-center text-center space-y-3">
-                            <div className="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+                            <div className="w-10 h-10 rounded-full bg-uqo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
                                 2
                             </div>
                             <h3 className="font-semibold text-slate-900 dark:text-white text-base">
@@ -218,7 +219,7 @@ export default function Home() {
                         </div>
 
                         <div className="flex flex-col items-center text-center space-y-3">
-                            <div className="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+                            <div className="w-10 h-10 rounded-full bg-uqo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
                                 3
                             </div>
                             <h3 className="font-semibold text-slate-900 dark:text-white text-base">

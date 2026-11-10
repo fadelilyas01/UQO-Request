@@ -228,7 +228,7 @@ export default function CreateRequest() {
                 {/* En-tete du Formulaire */}
                 <div className="pb-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-2 ring-1 ring-emerald-500/20">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-uqo-50 dark:bg-uqo-dark text-uqo-700 dark:text-uqo-accent-300 text-xs font-semibold mb-2 ring-1 ring-uqo-500/20">
                             <FiShield className="w-3.5 h-3.5" />
                             <span>Transmission Directe & Chiffrée</span>
                         </div>
@@ -243,7 +243,7 @@ export default function CreateRequest() {
                     {/* Indicateur de Brouillon Automatique */}
                     {lastSavedTime && (
                         <div className="flex items-center gap-2 self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="w-2 h-2 rounded-full bg-uqo-accent-500 animate-pulse" />
                             <span>Brouillon sauvé à {lastSavedTime}</span>
                         </div>
                     )}
@@ -365,7 +365,7 @@ export default function CreateRequest() {
                             </label>
                             <span className={cn(
                                 'text-xs',
-                                formData.description.length < 20 ? 'text-slate-400' : 'text-emerald-600 font-medium'
+                                formData.description.length < 20 ? 'text-slate-400' : 'text-uqo-600 dark:text-uqo-accent-400 font-medium'
                             )}>
                                 {formData.description.length} / 20 car. min
                             </span>
@@ -378,10 +378,10 @@ export default function CreateRequest() {
                             rows={6}
                             placeholder="Décrivez précisément votre situation, en incluant le sigle du cours, le groupe ou toute référence pertinente..."
                             required
-                            className="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            className="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-uqo-500"
                         />
                         <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1.5">
-                            <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                            <FiCheckCircle className="w-3.5 h-3.5 text-uqo-accent-500" />
                             <span>Les renseignements transmis sont traités confidentiellement selon la Loi 25.</span>
                         </p>
                     </div>
@@ -393,9 +393,9 @@ export default function CreateRequest() {
                         </label>
 
                         {attachment ? (
-                            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-50/40 dark:bg-emerald-950/20 text-xs">
+                            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-uqo-600/30 bg-uqo-50/50 dark:bg-uqo-dark text-xs">
                                 <div className="flex items-center gap-2.5 truncate">
-                                    <FiFile className="w-5 h-5 text-emerald-600 shrink-0" />
+                                    <FiFile className="w-5 h-5 text-uqo-600 dark:text-uqo-accent-400 shrink-0" />
                                     <div className="truncate">
                                         <p className="font-semibold text-slate-900 dark:text-white truncate">
                                             {attachment.name}
@@ -417,7 +417,7 @@ export default function CreateRequest() {
                         ) : (
                             <div
                                 onClick={() => fileInputRef.current?.click()}
-                                className="border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-2xl p-6 text-center cursor-pointer transition-colors"
+                                className="border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-uqo-500 dark:hover:border-uqo-accent-500 rounded-2xl p-6 text-center cursor-pointer transition-colors"
                             >
                                 <input
                                     ref={fileInputRef}

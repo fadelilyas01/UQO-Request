@@ -26,16 +26,16 @@ export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="w-full bg-slate-900 text-slate-300 border-t border-slate-800 transition-colors duration-300 mt-auto">
+        <footer className="w-full bg-[#182128] text-slate-300 border-t border-slate-800 transition-colors duration-300 mt-auto">
             {/* Ruban Superieur : Statut Operationnel & Chiffrement de Securite */}
-            <div className="border-b border-slate-800/80 bg-slate-950/60 py-3 px-4 sm:px-6 lg:px-8">
+            <div className="border-b border-slate-800/80 bg-[#0f151a] py-3 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div className="flex items-center space-x-2">
                         <span className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-uqo-accent-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-uqo-accent-500"></span>
                         </span>
-                        <span className="font-medium text-emerald-400">
+                        <span className="font-medium text-uqo-accent-400">
                             Tous les services sont opérationnels
                         </span>
                         <span className="text-slate-500">|</span>
@@ -46,11 +46,11 @@ export default function Footer() {
 
                     <div className="flex items-center space-x-4 text-slate-400">
                         <span className="flex items-center gap-1.5">
-                            <FiShield className="text-emerald-400 text-sm" />
+                            <FiShield className="text-uqo-accent-400 text-sm" />
                             <span>Conforme Loi 25 (Québec)</span>
                         </span>
                         <span className="hidden md:flex items-center gap-1.5">
-                            <FiLock className="text-emerald-400 text-sm" />
+                            <FiLock className="text-uqo-accent-400 text-sm" />
                             <span>Authentification JWT & RBAC</span>
                         </span>
                     </div>
@@ -62,11 +62,11 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
                     {/* Colonne 1 & 2 : Marque & Identite Institutionnelle */}
                     <div className="lg:col-span-2 space-y-4">
-                        <Link to="/" className="inline-flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-md">
-                            <img alt="Emblème officiel de l'UQO" src="/logos/uqo-symbol.svg" className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-105" />
+                        <Link to="/" className="inline-flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-uqo-accent-400 rounded-md">
+                            <img alt="Emblème officiel de l'UQO" src="/logos/uqo-symbol-white.svg" className="h-8 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
                             <div>
                                 <span className="text-lg font-black tracking-tight text-white block">
-                                    UQO <span className="text-emerald-400 font-bold">REQUESTS</span>
+                                    UQO <span className="text-uqo-accent-400 font-bold">REQUESTS</span>
                                 </span>
                                 <span className="text-[10px] tracking-wider uppercase text-slate-400 font-semibold block">
                                     Université du Québec en Outaouais
@@ -80,11 +80,11 @@ export default function Footer() {
 
                         <div className="pt-2 space-y-2 text-xs text-slate-400">
                             <div className="flex items-center gap-2">
-                                <HiOutlineBuildingOffice2 className="text-emerald-400 text-base shrink-0" />
+                                <HiOutlineBuildingOffice2 className="text-uqo-accent-400 text-base shrink-0" />
                                 <span>Réseau de l'Université du Québec (UQ)</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <FiClock className="text-emerald-400 text-base shrink-0" />
+                                <FiClock className="text-uqo-accent-400 text-base shrink-0" />
                                 <span>Support informatique : Lundi au vendredi de 8h30 à 16h30</span>
                             </div>
                         </div>
@@ -93,7 +93,7 @@ export default function Footer() {
                     {/* Colonne 3 : Navigation Rapide & Services */}
                     <div>
                         <h3 className="text-sm font-semibold tracking-wider text-white uppercase mb-4 flex items-center gap-2">
-                            <FiFileText className="text-emerald-400" />
+                            <FiFileText className="text-uqo-accent-400" />
                             <span>Services & Accès</span>
                         </h3>
                         <ul className="space-y-2.5 text-sm">
@@ -146,7 +146,7 @@ export default function Footer() {
                     {/* Colonne 4 : Campus de l'UQO */}
                     <div>
                         <h3 className="text-sm font-semibold tracking-wider text-white uppercase mb-4 flex items-center gap-2">
-                            <FiMapPin className="text-emerald-400" />
+                            <FiMapPin className="text-uqo-accent-400" />
                             <span>Nos Campus</span>
                         </h3>
                         <div className="space-y-3.5 text-xs text-slate-400">
@@ -164,7 +164,7 @@ export default function Footer() {
                             <div className="pt-1">
                                 <a 
                                     href="tel:18195953900" 
-                                    className="inline-flex items-center gap-1.5 text-emerald-400 hover:underline"
+                                    className="inline-flex items-center gap-1.5 text-uqo-accent-400 hover:underline"
                                 >
                                     <FiPhone className="text-xs" />
                                     <span>819 595-3900 | 1 800 567-1283</span>
@@ -176,14 +176,14 @@ export default function Footer() {
                     {/* Colonne 5 : Securite, A11y & Support */}
                     <div>
                         <h3 className="text-sm font-semibold tracking-wider text-white uppercase mb-4 flex items-center gap-2">
-                            <FiShield className="text-emerald-400" />
+                            <FiShield className="text-uqo-accent-400" />
                             <span>Sécurité & Support</span>
                         </h3>
                         <ul className="space-y-2.5 text-sm">
                             <li>
                                 <div className="text-xs text-slate-400 bg-slate-800/60 p-2.5 rounded border border-slate-700/60 space-y-1">
                                     <p className="font-semibold text-slate-200 flex items-center gap-1">
-                                        <FiAward className="text-emerald-400" />
+                                        <FiAward className="text-uqo-accent-400" />
                                         <span>Conformité & Normes</span>
                                     </p>
                                     <p className="text-[11px] text-slate-400">
@@ -196,7 +196,7 @@ export default function Footer() {
                                     href="mailto:support-requests@uqo.ca" 
                                     className="text-slate-400 hover:text-white inline-flex items-center gap-1.5 text-xs transition-colors duration-200"
                                 >
-                                    <FiMail className="text-emerald-400" />
+                                    <FiMail className="text-uqo-accent-400" />
                                     <span>support-requests@uqo.ca</span>
                                 </a>
                             </li>

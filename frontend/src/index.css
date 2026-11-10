@@ -4,33 +4,80 @@
 
 /* ==========================================================================
    SYSTEME DE DESIGN - UQO-REQUESTS
-   Thème: Modern Indigo & Slate - Standard Professionnel
+   Charte Officielle de l'Université du Québec en Outaouais (UQO)
+   Bleu Pétrole Institutionnel (#005477 / Pantone 7469 C)
+   Vert Menthe / Sarcelle Outaouais (#2accae)
+   Surfaces Sombres Institutionnelles (#182128)
    ========================================================================== */
+
+@theme {
+    /* Palette Primaire UQO - Bleu Pétrole Institutionnel (Pantone 7469 C) */
+    --color-uqo-50: #f0f7fa;
+    --color-uqo-100: #dcedf4;
+    --color-uqo-200: #bce0ec;
+    --color-uqo-300: #88c8dc;
+    --color-uqo-400: #4caac7;
+    --color-uqo-500: #007a9e;
+    --color-uqo-600: #005477;
+    --color-uqo-700: #004562;
+    --color-uqo-800: #003850;
+    --color-uqo-900: #002a3d;
+    --color-uqo-950: #001b27;
+
+    /* Palette Accent UQO - Vert Menthe & Sarcelle Outaouais */
+    --color-uqo-accent-50: #eefbf8;
+    --color-uqo-accent-100: #d5f7ef;
+    --color-uqo-accent-200: #aff0e1;
+    --color-uqo-accent-300: #7be4cf;
+    --color-uqo-accent-400: #46d1bb;
+    --color-uqo-accent-500: #2accae;
+    --color-uqo-accent-600: #1eb397;
+    --color-uqo-accent-700: #198d78;
+    --color-uqo-accent-800: #176f60;
+    --color-uqo-accent-900: #165b50;
+    --color-uqo-accent-950: #073630;
+
+    /* Noir Bleuté / Surface UQO */
+    --color-uqo-dark: #182128;
+    --color-uqo-deep: #0f151a;
+
+    /* Harmonisation Tailwind : remplacement de la nuance emerald par la charte UQO */
+    --color-emerald-50: #f0f7fa;
+    --color-emerald-100: #dcedf4;
+    --color-emerald-200: #bce0ec;
+    --color-emerald-300: #88c8dc;
+    --color-emerald-400: #2accae;
+    --color-emerald-500: #007a9e;
+    --color-emerald-600: #005477;
+    --color-emerald-700: #004562;
+    --color-emerald-800: #003850;
+    --color-emerald-900: #002a3d;
+    --color-emerald-950: #001b27;
+}
 
 :root {
     /* 
-     * PALETTE DE COULEURS
-     * Nuances Indigo profond et vibrantes pour un look professionnel et tech.
+     * VARIABLES CSS RACINE - UQO
+     * Bleu institutionnel (#005477) et accent sarcelle (#2accae)
      */
-    --primary-50: #eef2ff;
-    --primary-100: #e0e7ff;
-    --primary-200: #c7d2fe;
-    --primary-300: #a5b4fc;
-    --primary-400: #818cf8;
-    --primary-500: #6366f1;
-    /* Couleur principale */
-    --primary-600: #4f46e5;
-    --primary-700: #4338ca;
-    --primary-800: #3730a3;
-    --primary-900: #312e81;
-    --primary-950: #1e1b4b;
+    --primary-50: #f0f7fa;
+    --primary-100: #dcedf4;
+    --primary-200: #bce0ec;
+    --primary-300: #88c8dc;
+    --primary-400: #4caac7;
+    --primary-500: #007a9e;
+    --primary-600: #005477; /* UQO Officiel */
+    --primary-700: #004562;
+    --primary-800: #003850;
+    --primary-900: #002a3d;
+    --primary-950: #001b27;
 
-    /* Accents - Pour les gradients et la vivacité */
-    --accent-400: #d8b4fe;
-    --accent-500: #c084fc;
-    --accent-600: #a855f7;
+    /* Accents - Sarcelle & Menthe Outaouais */
+    --accent-400: #46d1bb;
+    --accent-500: #2accae;
+    --accent-600: #1eb397;
 
-    /* Neutres - Slate (Bleutés) pour éviter le gris triste */
+    /* Neutres - Slate (Bleutés) */
     --gray-50: #f8fafc;
     --gray-100: #f1f5f9;
     --gray-200: #e2e8f0;
@@ -39,19 +86,19 @@
     --gray-500: #64748b;
     --gray-600: #475569;
     --gray-700: #334155;
-    --gray-800: #1e293b;
-    --gray-900: #0f172a;
-    --gray-950: #020617;
+    --gray-800: #182128;
+    --gray-900: #0f151a;
+    --gray-950: #090e12;
 
     /* Statuts sémantiques raffinés */
-    --success-bg: #dcfce7;
-    --success-text: #14532d;
+    --success-bg: #eefbf8;
+    --success-text: #198d78;
     --warning-bg: #fef9c3;
     --warning-text: #713f12;
     --error-bg: #fee2e2;
     --error-text: #7f1d1d;
-    --info-bg: #dbeafe;
-    --info-text: #1e3a8a;
+    --info-bg: #dcedf4;
+    --info-text: #004562;
 
     /* UI Elements */
     --radius-sm: 0.5rem;
@@ -63,7 +110,7 @@
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+    --shadow-glow: 0 0 20px rgba(0, 84, 119, 0.25);
 
     --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -85,27 +132,27 @@
     --glass-border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-/* Mode Sombre */
+/* Mode Sombre - Surface Institutionnelle UQO */
 .dark {
     color-scheme: dark;
-    --bg-app: #020617;
-    --bg-card: #0f172a;
-    --bg-elevated: #1e293b;
-    --border-color: #1e293b;
+    --bg-app: #0f151a;
+    --bg-card: #182128;
+    --bg-elevated: #232f38;
+    --border-color: #26333e;
     --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
     --text-muted: #94a3b8;
-    --glass-border: 1px solid rgba(30, 41, 59, 0.8);
+    --glass-border: 1px solid rgba(38, 51, 62, 0.8);
 
     /* Ajustement des couleurs sémantiques en sombre */
-    --success-bg: rgba(34, 197, 94, 0.2);
-    --success-text: #86efac;
+    --success-bg: rgba(42, 204, 174, 0.2);
+    --success-text: #7be4cf;
     --warning-bg: rgba(234, 179, 8, 0.2);
     --warning-text: #fde047;
     --error-bg: rgba(239, 68, 68, 0.2);
     --error-text: #fca5a5;
-    --info-bg: rgba(59, 130, 246, 0.2);
-    --info-text: #93c5fd;
+    --info-bg: rgba(0, 84, 119, 0.25);
+    --info-text: #88c8dc;
 }
 
 /* ==========================================================================
@@ -209,8 +256,8 @@ a:hover {
 
 .input:focus {
     outline: none;
-    border-color: var(--primary-500);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    border-color: var(--primary-600);
+    box-shadow: 0 0 0 4px rgba(0, 84, 119, 0.18);
     background: var(--bg-elevated);
 }
 
@@ -251,17 +298,17 @@ a:hover {
     filter: grayscale(1);
 }
 
-/* Bouton Primaire (Gradient) */
+/* Bouton Primaire (Gradient Institutionnel UQO) */
 .btn-primary {
     background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-500) 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 84, 119, 0.28);
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(79, 70, 229, 0.4);
-    filter: brightness(1.1);
+    box-shadow: 0 8px 16px rgba(0, 84, 119, 0.38);
+    filter: brightness(1.08);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -282,7 +329,7 @@ a:hover {
 }
 
 .dark .btn-secondary:hover:not(:disabled) {
-    color: var(--primary-400);
+    color: var(--accent-400);
 }
 
 /* Badges de statut */

@@ -33,8 +33,9 @@ function RouteLoader() {
     return (
         <div className="flex flex-col items-center justify-center min-h-[50vh] py-16">
             <div className="relative flex items-center justify-center">
-                <div className="w-12 h-12 border-3 border-emerald-500/20 border-t-emerald-600 rounded-full animate-spin" />
-                <img alt="Chargement en cours" src="/logos/uqo-symbol.svg" className="absolute w-5 h-5 object-contain opacity-70" />
+                <div className="w-12 h-12 border-3 border-uqo-600/20 border-t-uqo-600 rounded-full animate-spin" />
+                <img alt="Chargement en cours" src="/logos/uqo-symbol-blue.svg" className="absolute h-5 w-auto object-contain opacity-80 dark:hidden" />
+                <img alt="Chargement en cours" src="/logos/uqo-symbol-white.svg" className="absolute h-5 w-auto object-contain opacity-80 hidden dark:inline" />
             </div>
             <p className="mt-4 text-xs font-medium text-slate-500 dark:text-slate-400">
                 Chargement sécurisé en cours...
@@ -50,7 +51,7 @@ function NotFoundView() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center py-20 text-center max-w-md mx-auto"
         >
-            <span className="text-6xl font-black text-emerald-600 dark:text-emerald-400 mb-2 font-mono">
+            <span className="text-6xl font-black text-uqo-600 dark:text-uqo-accent-400 mb-2 font-mono">
                 404
             </span>
             <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
@@ -61,7 +62,7 @@ function NotFoundView() {
             </p>
             <Link 
                 to="/" 
-                className="px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-uqo-600 hover:bg-uqo-700 active:bg-uqo-800 transition-colors shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uqo-500"
             >
                 Retour à l'accueil
             </Link>
@@ -84,8 +85,9 @@ function AppRoutes() {
         return (
             <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-slate-950 transition-opacity">
                 <div className="flex flex-col items-center gap-3">
-                    <img alt="Logo officiel UQO" src="/logos/uqo-symbol.svg" className="w-14 h-14 object-contain animate-pulse" />
-                    <div className="w-8 h-8 border-3 border-emerald-500/20 border-t-emerald-600 rounded-full animate-spin" />
+                    <img alt="Logo officiel UQO" src="/logos/uqo-symbol-blue.svg" className="h-10 w-auto object-contain animate-pulse dark:hidden" />
+                    <img alt="Logo officiel UQO" src="/logos/uqo-symbol-white.svg" className="h-10 w-auto object-contain animate-pulse hidden dark:inline" />
+                    <div className="w-8 h-8 border-3 border-uqo-600/20 border-t-uqo-600 rounded-full animate-spin" />
                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-2">
                         UQO-Requests
                     </span>

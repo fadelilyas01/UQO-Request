@@ -21,8 +21,8 @@ export default function EmptyState({
             transition={{ duration: 0.3 }}
             className="text-center py-12 px-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 max-w-lg mx-auto"
         >
-            <div className="mx-auto w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 mb-4 shadow-xs">
-                <Icon className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
+            <div className="mx-auto w-14 h-14 rounded-2xl bg-uqo-50 dark:bg-uqo-dark flex items-center justify-center text-slate-500 dark:text-slate-400 mb-4 shadow-xs">
+                <Icon className="w-7 h-7 text-uqo-600 dark:text-uqo-accent-400" />
             </div>
 
             <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-2">
@@ -36,7 +36,7 @@ export default function EmptyState({
             {actionLabel && actionLink && (
                 <Link
                     to={actionLink}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-uqo-600 hover:bg-uqo-700 active:bg-uqo-800 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uqo-500 focus-visible:ring-offset-2"
                 >
                     <FiPlus className="w-4 h-4" />
                     <span>{actionLabel}</span>

@@ -66,8 +66,9 @@ export default function Login() {
             >
                 {/* Header Institutionnel */}
                 <div className="text-center space-y-3">
-                    <div className="inline-flex p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/20 shadow-2xs mb-1">
-                        <img alt="Logo officiel UQO" src="/logos/uqo-symbol.svg" className="w-10 h-10 object-contain" />
+                    <div className="inline-flex p-3 rounded-2xl bg-uqo-50 dark:bg-uqo-dark border border-uqo-200 dark:border-uqo-800/60 shadow-2xs mb-1">
+                        <img alt="Logo officiel UQO" src="/logos/uqo-symbol-blue.svg" className="h-8 w-auto object-contain dark:hidden" />
+                        <img alt="Logo officiel UQO" src="/logos/uqo-symbol-white.svg" className="h-8 w-auto object-contain hidden dark:inline" />
                     </div>
                     <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                         Connexion au portail
@@ -79,7 +80,7 @@ export default function Login() {
 
                 {/* Bannière de Sécurité & Restriction */}
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-400">
-                    <FiShield className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <FiShield className="w-4 h-4 text-uqo-600 dark:text-uqo-accent-400 shrink-0" />
                     <span>Connexion chiffrée TLS 1.3 • Domaine @uqo.ca</span>
                 </div>
 
@@ -114,7 +115,7 @@ export default function Login() {
                                 placeholder="prenom.nom@uqo.ca"
                                 required
                                 autoFocus
-                                className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-uqo-500"
                             />
                         </div>
                     </div>
@@ -135,7 +136,7 @@ export default function Login() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
                                 required
-                                className="w-full pl-10 pr-10 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                className="w-full pl-10 pr-10 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-uqo-500"
                             />
                             <button
                                 type="button"
@@ -167,7 +168,7 @@ export default function Login() {
                     <span>Nouveau sur la plateforme ? </span>
                     <Link
                         to="/register"
-                        className="font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:underline"
+                        className="font-semibold text-uqo-600 hover:text-uqo-700 dark:text-uqo-accent-400 dark:hover:underline"
                     >
                         Créer un compte étudiant
                     </Link>

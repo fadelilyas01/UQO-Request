@@ -85,7 +85,7 @@ export class ErrorBoundary extends React.Component {
 
                             {/* Rassurance sur les données */}
                             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-start gap-2.5 text-left text-xs text-slate-600 dark:text-slate-300">
-                                <FiShield className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                                <FiShield className="w-4 h-4 text-uqo-600 dark:text-uqo-accent-400 shrink-0 mt-0.5" />
                                 <div>
                                     <span className="font-semibold text-slate-800 dark:text-slate-200">
                                         Intégrité des données garantie :{' '}
@@ -111,7 +111,7 @@ export class ErrorBoundary extends React.Component {
 
                             <a
                                 href="/dashboard"
-                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uqo-500"
                             >
                                 <FiHome className="w-4 h-4" />
                                 <span>Tableau de bord</span>

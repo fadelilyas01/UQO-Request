@@ -161,8 +161,9 @@ export default function Register() {
             >
                 {/* Header */}
                 <div className="text-center space-y-3">
-                    <div className="inline-flex p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/20 shadow-2xs mb-1">
-                        <img alt="Logo officiel UQO" src="/logos/uqo-symbol.svg" className="w-10 h-10 object-contain" />
+                    <div className="inline-flex p-3 rounded-2xl bg-uqo-50 dark:bg-uqo-dark border border-uqo-200 dark:border-uqo-800/60 shadow-2xs mb-1">
+                        <img alt="Logo officiel UQO" src="/logos/uqo-symbol-blue.svg" className="h-8 w-auto object-contain dark:hidden" />
+                        <img alt="Logo officiel UQO" src="/logos/uqo-symbol-white.svg" className="h-8 w-auto object-contain hidden dark:inline" />
                     </div>
                     <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                         Inscription étudiante
@@ -174,7 +175,7 @@ export default function Register() {
 
                 {/* Bannière de Sécurité */}
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-400">
-                    <FiShield className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <FiShield className="w-4 h-4 text-uqo-600 dark:text-uqo-accent-400 shrink-0" />
                     <span>Adresses institutionnelles @uqo.ca obligatoires</span>
                 </div>
 

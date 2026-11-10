@@ -75,7 +75,7 @@ export default function Dashboard() {
 
                 <Link
                     to="/requests/new"
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-2xs hover:shadow-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-uqo-600 hover:bg-uqo-700 active:bg-uqo-800 shadow-2xs hover:shadow-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uqo-500"
                 >
                     <FiPlus className="w-4 h-4" />
                     <span>Nouvelle requête</span>
@@ -94,9 +94,9 @@ export default function Dashboard() {
                             type="button"
                             onClick={() => setStatusFilter(stat.filter)}
                             className={cn(
-                                'flex flex-col text-left p-4 rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer',
+                                'flex flex-col text-left p-4 rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uqo-500 cursor-pointer',
                                 isSelected
-                                    ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-500 shadow-2xs ring-1 ring-emerald-500'
+                                    ? 'bg-uqo-50 dark:bg-uqo-dark border-uqo-600 shadow-2xs ring-1 ring-uqo-600'
                                     : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs'
                             )}
                         >
@@ -123,7 +123,7 @@ export default function Dashboard() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Rechercher par mot-clé, cours, objet..."
-                        className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-uqo-500"
                     />
                 </div>
 
@@ -132,7 +132,7 @@ export default function Dashboard() {
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                        className="px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-uqo-500 cursor-pointer"
                     >
                         <option value="">Tous les statuts</option>
                         <option value="SUBMITTED">Soumises</option>

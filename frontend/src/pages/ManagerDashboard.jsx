@@ -142,7 +142,7 @@ export default function ManagerDashboard() {
             {/* Header Gestionnaire */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
                 <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-2 ring-1 ring-emerald-500/20">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-uqo-50 dark:bg-uqo-dark text-uqo-700 dark:text-uqo-accent-300 text-xs font-semibold mb-2 ring-1 ring-uqo-500/20">
                         <FiShield className="w-3.5 h-3.5" />
                         <span>Espace de Supervision & Décision</span>
                     </div>
@@ -180,9 +180,9 @@ export default function ManagerDashboard() {
                             type="button"
                             onClick={() => setStatusFilter(stat.filter)}
                             className={cn(
-                                'flex flex-col text-left p-4 rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer',
+                                'flex flex-col text-left p-4 rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uqo-500 cursor-pointer',
                                 isSelected
-                                    ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-500 shadow-2xs ring-1 ring-emerald-500'
+                                    ? 'bg-uqo-50 dark:bg-uqo-dark border-uqo-600 shadow-2xs ring-1 ring-uqo-600'
                                     : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs'
                             )}
                         >

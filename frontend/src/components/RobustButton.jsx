@@ -14,12 +14,12 @@ import { FiCheck, FiLoader } from 'react-icons/fi';
 import { cn } from '../utils/cn';
 
 const VARIANTS = {
-    primary: 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-2xs hover:shadow-xs focus-visible:ring-emerald-500',
+    primary: 'bg-uqo-600 hover:bg-uqo-700 active:bg-uqo-800 text-white shadow-2xs hover:shadow-xs focus-visible:ring-uqo-500',
     secondary: 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 focus-visible:ring-slate-400',
     danger: 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-2xs hover:shadow-xs focus-visible:ring-rose-500',
-    outline: 'border border-slate-300 dark:border-slate-700 bg-transparent text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 focus-visible:ring-emerald-500',
+    outline: 'border border-slate-300 dark:border-slate-700 bg-transparent text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 focus-visible:ring-uqo-500',
     ghost: 'bg-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:ring-slate-400',
-    success: 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white shadow-2xs focus-visible:ring-emerald-500',
+    success: 'bg-uqo-accent-600 hover:bg-uqo-accent-700 active:bg-uqo-accent-800 text-white shadow-2xs focus-visible:ring-uqo-accent-500',
 };
 
 const SIZES = {

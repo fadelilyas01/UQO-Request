@@ -1,11 +1,12 @@
 /**
  * Page de consultation detaillee d'une requete pour UQO-Requests.
  * Integre fil chronologique, fil de commentaires securise,
+ * pieces jointes securisees (SHA-256), attestation officielle de depot en PDF scellee,
  * modal de confirmation de suppression robuste, notifications toast
  * et parsing defensif Zéro-Crash.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -22,7 +23,11 @@ import {
     FiAlertCircle, 
     FiX,
     FiClock,
-    FiArrowRight
+    FiArrowRight,
+    FiDownload,
+    FiPaperclip,
+    FiFile,
+    FiPlus
 } from 'react-icons/fi';
 import { HiOutlineAcademicCap } from 'react-icons/hi2';
 import { api, getSafeApiErrorMessage } from '../api/client';
@@ -56,7 +61,10 @@ export default function RequestDetail() {
     const [submittingComment, setSubmittingComment] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [downloadingReceipt, setDownloadingReceipt] = useState(false);
+    const [uploadingAttachment, setUploadingAttachment] = useState(false);
     const [successMessage, setSuccessMessage] = useState(location.state?.message || null);
+    const fileInputRef = useRef(null);
 
     const fetchRequest = async () => {
         try {
@@ -122,6 +130,96 @@ export default function RequestDetail() {
         }
     };
 
+    // Téléchargement sécurisé de l'attestation officielle de dépôt en PDF (Rule 1.3)
+    const handleDownloadReceipt = async () => {
+        setDownloadingReceipt(true);
+        try {
+            const response = await api.downloadReceipt(id);
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `attestation_depot_uqo_${id}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+            showToast({
+                type: 'success',
+                title: 'Attestation officielle générée',
+                message: 'Le document PDF scellé par empreinte SHA-256 a été téléchargé avec succès.',
+            });
+        } catch (err) {
+            showToast({
+                type: 'error',
+                title: 'Échec de génération',
+                message: getSafeApiErrorMessage(err, "Impossible de générer l'attestation officielle."),
+            });
+        } finally {
+            setDownloadingReceipt(false);
+        }
+    };
+
+    // Téléchargement sécurisé d'une pièce justificative
+    const handleDownloadAttachment = async (att) => {
+        try {
+            const response = await api.downloadAttachment(id, att.id);
+            const blob = new Blob([response.data], { type: att.content_type || 'application/octet-stream' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', att.file_name || 'justificatif.pdf');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch {
+            showToast({
+                type: 'error',
+                title: 'Téléchargement impossible',
+                message: 'Impossible de récupérer la pièce jointe demandée.',
+            });
+        }
+    };
+
+    // Téléversement d'une nouvelle pièce jointe
+    const handleUploadAttachment = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            showToast({
+                type: 'error',
+                title: 'Fichier trop volumineux',
+                message: 'La taille maximale autorisée est de 5 Mo.',
+            });
+            return;
+        }
+
+        setUploadingAttachment(true);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            await api.uploadAttachment(id, formData);
+            showToast({
+                type: 'success',
+                title: 'Document consigné',
+                message: 'La pièce jointe a été scellée et enregistrée au dossier.',
+            });
+            await fetchRequest();
+        } catch (err) {
+            showToast({
+                type: 'error',
+                title: 'Erreur d\'ajout',
+                message: getSafeApiErrorMessage(err, 'Impossible de joindre ce document.'),
+            });
+        } finally {
+            setUploadingAttachment(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-24">
@@ -146,11 +244,12 @@ export default function RequestDetail() {
     const { Icon: TypeIcon } = typeConfig;
     const commentsList = safeArray(request.comments);
     const historyList = safeArray(request.status_history);
+    const attachmentsList = safeArray(request.attachments);
 
     return (
         <div className="max-w-5xl mx-auto space-y-6 py-2">
             {/* Barre de Navigation Supérieure */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <Link
                     to={isManager ? '/manager' : '/dashboard'}
                     className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors"
@@ -159,25 +258,40 @@ export default function RequestDetail() {
                     <span>{isManager ? 'Retour à la supervision' : 'Retour au tableau de bord'}</span>
                 </Link>
 
-                {request.can_edit && (
-                    <div className="flex items-center gap-2">
-                        <Link
-                            to={`/requests/${id}/edit`}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-colors"
-                        >
-                            <FiEdit2 className="w-3.5 h-3.5" />
-                            <span>Modifier</span>
-                        </Link>
-                        <RobustButton
-                            variant="danger"
-                            size="xs"
-                            onClick={() => setShowDeleteModal(true)}
-                            icon={FiTrash2}
-                        >
-                            Supprimer
-                        </RobustButton>
-                    </div>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                    {/* Bouton Télécharger Attestation PDF */}
+                    <RobustButton
+                        variant="secondary"
+                        size="xs"
+                        onClick={handleDownloadReceipt}
+                        loading={downloadingReceipt}
+                        loadingText="Génération PDF..."
+                        icon={FiDownload}
+                        title="Télécharger l'attestation officielle scellée SHA-256"
+                    >
+                        Attestation officielle (PDF)
+                    </RobustButton>
+
+                    {request.can_edit && (
+                        <>
+                            <Link
+                                to={`/requests/${id}/edit`}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-colors"
+                            >
+                                <FiEdit2 className="w-3.5 h-3.5" />
+                                <span>Modifier</span>
+                            </Link>
+                            <RobustButton
+                                variant="danger"
+                                size="xs"
+                                onClick={() => setShowDeleteModal(true)}
+                                icon={FiTrash2}
+                            >
+                                Supprimer
+                            </RobustButton>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Notification de Succès Locale */}
@@ -233,7 +347,7 @@ export default function RequestDetail() {
                             <FiUser className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                         </div>
                         <div>
-                            <span className="text-slate-400 block">Étudiant demandeur</span>
+                            <span className="text-slate-400 block">Demandeur</span>
                             <span className="font-semibold text-slate-800 dark:text-slate-200">
                                 {request.user?.first_name ? `${request.user.first_name} ${request.user.last_name || ''}` : request.user?.email}
                             </span>
@@ -273,6 +387,81 @@ export default function RequestDetail() {
                     <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60 text-sm leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-wrap">
                         {request.description}
                     </div>
+                </div>
+
+                {/* Documents & Pièces Justificatives */}
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <FiPaperclip className="w-4 h-4 text-emerald-600" />
+                            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                Pièces justificatives scellées ({attachmentsList.length})
+                            </h2>
+                        </div>
+
+                        {request.can_edit && (
+                            <div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".pdf,.png,.jpg,.jpeg,.webp"
+                                    onChange={handleUploadAttachment}
+                                    className="sr-only"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={uploadingAttachment}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                                >
+                                    <FiPlus className="w-3.5 h-3.5" />
+                                    <span>{uploadingAttachment ? 'Envoi...' : 'Joindre un document'}</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {attachmentsList.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {attachmentsList.map((att) => (
+                                <div
+                                    key={att.id}
+                                    className="p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-between gap-3 text-xs"
+                                >
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className="p-2 rounded-xl bg-white dark:bg-slate-700 shadow-2xs shrink-0">
+                                            <FiFile className="w-4 h-4 text-emerald-600" />
+                                        </div>
+                                        <div className="truncate">
+                                            <p className="font-semibold text-slate-900 dark:text-white truncate">
+                                                {att.file_name}
+                                            </p>
+                                            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono mt-0.5">
+                                                <span>{(att.file_size / (1024 * 1024)).toFixed(2)} Mo</span>
+                                                <span>•</span>
+                                                <span title={`Empreinte SHA-256 : ${att.file_hash}`}>
+                                                    SHA-256 : {att.file_hash?.slice(0, 8)}...
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDownloadAttachment(att)}
+                                        className="p-2 text-slate-500 hover:text-emerald-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer shrink-0"
+                                        title="Télécharger ce justificatif"
+                                    >
+                                        <FiDownload className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-xs text-slate-400 italic">
+                            Aucune pièce jointe n'est associée à cette demande.
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -448,7 +637,7 @@ export default function RequestDetail() {
                             <div className="flex items-center justify-end gap-3 pt-2">
                                 <button
                                     onClick={() => setShowDeleteModal(false)}
-                                    className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                                    className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
                                 >
                                     Annuler
                                 </button>

@@ -15,7 +15,7 @@ from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
 # Importation des vues de l'application
-from .views import RequestViewSet, ManagerRequestListView, api_root
+from .views import RequestViewSet, NotificationViewSet, ManagerRequestListView, api_root
 
 # Namespace de l'application - utilisé pour référencer les URLs par nom
 # Exemple: reverse('requests_app:request-list')
@@ -28,6 +28,7 @@ app_name = 'requests_app'
 # Nous utilisons notre propre vue racine (api_root).
 router = SimpleRouter()
 router.register(r'requests', RequestViewSet, basename='request')
+router.register(r'notifications', NotificationViewSet, basename='notification')
 
 # ============================================================================
 # DÉFINITION DES PATTERNS D'URL

@@ -133,3 +133,85 @@ class IdempotencyAndResilienceTests(TestCase):
         self.assertEqual(response.data['code'], 'internal_server_error')
         # S'assurer qu'aucun détail interne sensible n'est exposé au client
         self.assertNotIn('Database lock contention', response.data['error'])
+
+    def test_pdf_receipt_generation_with_sha256(self):
+        """
+        Vérifie la génération du reçu officiel PDF avec calcul de l'empreinte SHA-256 en direct.
+        """
+        req = Request.objects.create(
+            user=self.user,
+            title='Demande de relevé officiel',
+            type='ADMINISTRATIVE',
+            description='Description complète pour vérification de l\'attestation scellée.',
+            status='SUBMITTED'
+        )
+
+        url = reverse('requests_app:request-download-receipt', kwargs={'pk': req.id})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertTrue(len(response.content) > 1000)
+        self.assertTrue(response.content.startswith(b'%PDF-'))
+        self.assertIn('X-Integrity-SHA256', response)
+        self.assertEqual(len(response['X-Integrity-SHA256']), 64)
+
+    def test_attachment_upload_and_security(self):
+        """
+        Vérifie l'upload d'une pièce justificative, le rejet des formats interdits et le calcul d'empreinte.
+        """
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        req = Request.objects.create(
+            user=self.user,
+            title='Demande avec pièce jointe',
+            type='ACADEMIC',
+            description='Description de la requête avec justificatif médical.',
+            status='SUBMITTED'
+        )
+
+        url = reverse('requests_app:request-attachments', kwargs={'pk': req.id})
+
+        # 1. Rejet d'un fichier exécutable interdit (.exe / application/x-dosexec)
+        forbidden_file = SimpleUploadedFile("virus.exe", b"MZDummyPayloadContent", content_type="application/x-dosexec")
+        res_fail = self.client.post(url, {'file': forbidden_file}, format='multipart')
+        self.assertEqual(res_fail.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # 2. Acceptation d'un document PDF légitime
+        valid_pdf = SimpleUploadedFile("certificat.pdf", b"%PDF-1.4 Fake PDF Content for Unit Test", content_type="application/pdf")
+        res_ok = self.client.post(url, {'file': valid_pdf}, format='multipart')
+        self.assertEqual(res_ok.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res_ok.data['file_name'], 'certificat.pdf')
+        self.assertTrue(len(res_ok.data['file_hash']) == 64)
+
+    def test_notification_flow_on_status_change(self):
+        """
+        Vérifie qu'un changement de statut émet une notification in-app pour l'étudiant.
+        """
+        req = Request.objects.create(
+            user=self.user,
+            title='Demande pour notification',
+            type='TECHNICAL',
+            description='Description technique de la demande.',
+            status='SUBMITTED'
+        )
+
+        manager = User.objects.create_user(
+            email='manager.notif@uqo.ca',
+            username='manager.notif',
+            password='Password123!',
+            first_name='Admin',
+            last_name='Notif',
+            role='MANAGER'
+        )
+        self.client.force_authenticate(user=manager)
+
+        # Transition
+        url = reverse('requests_app:request-change-status', kwargs={'pk': req.id})
+        self.client.post(url, {'new_status': 'IN_PROGRESS', 'comment': 'Prise en charge'}, format='json')
+
+        # Se reconnecter en tant qu'étudiant
+        self.client.force_authenticate(user=self.user)
+        unread_res = self.client.get(reverse('requests_app:notification-unread-count'))
+        self.assertEqual(unread_res.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(unread_res.data['unread_count'], 1)

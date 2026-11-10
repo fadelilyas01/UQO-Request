@@ -131,3 +131,83 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Commentaire de {self.author} sur {self.request.title}"
+
+
+class Notification(models.Model):
+    """
+    Notifications in-app pour avertir les usagers des évolutions de leurs dossiers.
+    """
+
+    class NotificationType(models.TextChoices):
+        STATUS_CHANGE = 'STATUS_CHANGE', 'Changement de statut'
+        COMMENT = 'COMMENT', 'Nouveau commentaire'
+        NEW_REQUEST = 'NEW_REQUEST', 'Nouvelle requête déposée'
+        SYSTEM = 'SYSTEM', 'Message système'
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        verbose_name='Destinataire'
+    )
+    request = models.ForeignKey(
+        Request,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='notifications',
+        verbose_name='Demande associée'
+    )
+    title = models.CharField('Titre', max_length=200)
+    message = models.TextField('Message')
+    notification_type = models.CharField(
+        'Type',
+        max_length=30,
+        choices=NotificationType.choices,
+        default=NotificationType.STATUS_CHANGE
+    )
+    is_read = models.BooleanField('Lu', default=False)
+    created_at = models.DateTimeField('Date', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"[{self.notification_type}] {self.user.email} - {self.title}"
+
+
+class RequestAttachment(models.Model):
+    """
+    Pièces justificatives et documents officiels joints à une requête.
+    Scellés avec empreinte cryptographique SHA-256 calculée lors du téléversement (Rule 1.3).
+    """
+
+    request = models.ForeignKey(
+        Request,
+        on_delete=models.CASCADE,
+        related_name='attachments',
+        verbose_name='Demande'
+    )
+    file = models.FileField('Fichier', upload_to='attachments/%Y/%m/')
+    file_name = models.CharField('Nom d\'origine', max_length=255)
+    file_size = models.PositiveIntegerField('Taille en octets')
+    content_type = models.CharField('Type MIME', max_length=100)
+    file_hash = models.CharField('Empreinte SHA-256', max_length=64)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='uploaded_attachments',
+        verbose_name='Déposé par'
+    )
+    created_at = models.DateTimeField('Date de dépôt', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Pièce jointe'
+        verbose_name_plural = 'Pièces jointes'
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.file_name} (#{self.request_id})"
+

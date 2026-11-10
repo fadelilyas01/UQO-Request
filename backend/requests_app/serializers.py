@@ -6,7 +6,7 @@ Validation, serialisation et regles metier de transition de statut pour les dema
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.utils.html import strip_tags
-from .models import Request, StatusHistory, Comment
+from .models import Request, StatusHistory, Comment, Notification, RequestAttachment
 
 User = get_user_model()
 
@@ -79,6 +79,49 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         return cleaned
 
 
+class RequestAttachmentSerializer(serializers.ModelSerializer):
+    """Lecture des métadonnées d'une pièce justificative scellée."""
+
+    uploaded_by = UserMinimalSerializer(read_only=True)
+    download_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RequestAttachment
+        fields = [
+            'id',
+            'file_name',
+            'file_size',
+            'content_type',
+            'file_hash',
+            'uploaded_by',
+            'created_at',
+            'download_url',
+        ]
+        read_only_fields = ['id', 'file_name', 'file_size', 'content_type', 'file_hash', 'uploaded_by', 'created_at']
+
+    def get_download_url(self, obj):
+        request = self.context.get('request')
+        relative_url = f"/api/requests/{obj.request_id}/attachments/{obj.id}/download/"
+        return request.build_absolute_uri(relative_url) if request else relative_url
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    """Lecture des notifications in-app pour l'utilisateur."""
+
+    class Meta:
+        model = Notification
+        fields = [
+            'id',
+            'request',
+            'title',
+            'message',
+            'notification_type',
+            'is_read',
+            'created_at',
+        ]
+        read_only_fields = ['id', 'request', 'title', 'message', 'notification_type', 'created_at']
+
+
 class RequestListSerializer(serializers.ModelSerializer):
     """Vue simplifiee pour le listage des demandes."""
 
@@ -110,14 +153,16 @@ class RequestListSerializer(serializers.ModelSerializer):
 
 
 class RequestDetailSerializer(serializers.ModelSerializer):
-    """Vue detaillee complete d'une demande incluant historique et commentaires."""
+    """Vue detaillee complete d'une demande incluant historique, commentaires et pieces jointes."""
 
     user = UserMinimalSerializer(read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     type_display = serializers.CharField(source='get_type_display', read_only=True)
     status_history = StatusHistorySerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
+    attachments = RequestAttachmentSerializer(many=True, read_only=True)
     can_edit = serializers.SerializerMethodField()
+    receipt_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Request
@@ -135,6 +180,8 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             'can_edit',
             'status_history',
             'comments',
+            'attachments',
+            'receipt_url',
         ]
 
     def get_can_edit(self, obj):
@@ -142,6 +189,11 @@ class RequestDetailSerializer(serializers.ModelSerializer):
         if not request or not request.user:
             return False
         return obj.user == request.user and obj.status == 'SUBMITTED'
+
+    def get_receipt_url(self, obj):
+        request = self.context.get('request')
+        relative_url = f"/api/requests/{obj.id}/download-receipt/"
+        return request.build_absolute_uri(relative_url) if request else relative_url
 
 
 class RequestCreateSerializer(serializers.ModelSerializer):

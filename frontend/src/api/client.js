@@ -232,6 +232,24 @@ export const api = {
     getComments: (requestId) => apiClient.get(`/requests/${requestId}/comments/`),
     addComment: (requestId, content) => apiClient.post(`/requests/${requestId}/comments/`, { content }),
 
+    // Attestation PDF scellée SHA-256 (Rule 1.3)
+    downloadReceipt: (requestId) => apiClient.get(`/requests/${requestId}/download-receipt/`, { responseType: 'blob' }),
+
+    // Pièces Jointes & Justificatifs
+    getAttachments: (requestId) => apiClient.get(`/requests/${requestId}/attachments/`),
+    uploadAttachment: (requestId, formData) => apiClient.post(`/requests/${requestId}/attachments/`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    downloadAttachment: (requestId, attachmentId) => apiClient.get(`/requests/${requestId}/attachments/${attachmentId}/download/`, {
+        responseType: 'blob'
+    }),
+
+    // Centre de Notifications In-App
+    getNotifications: () => apiClient.get('/notifications/'),
+    getUnreadNotificationsCount: () => apiClient.get('/notifications/unread-count/'),
+    markNotificationAsRead: (id) => apiClient.post(`/notifications/${id}/mark-as-read/`),
+    markAllNotificationsAsRead: () => apiClient.post('/notifications/mark-all-read/'),
+
     // Supervision Gestionnaire
     getManagerRequests: (params = {}) => apiClient.get('/manager/requests/', { params }),
 };

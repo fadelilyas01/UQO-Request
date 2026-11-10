@@ -18,11 +18,14 @@ import {
     FiMenu, 
     FiX,
     FiCheckCircle,
-    FiChevronRight
+    FiChevronRight,
+    FiSearch
 } from 'react-icons/fi';
 import { HiOutlineSquares2X2 } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import NotificationBell from './NotificationBell';
+import CommandPalette from './CommandPalette';
 import { cn } from '../utils/cn';
 
 export default function Navbar() {
@@ -33,10 +36,22 @@ export default function Navbar() {
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
     useEffect(() => {
         setIsMenuOpen(false);
     }, [location.pathname]);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setIsCommandPaletteOpen((prev) => !prev);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     const handleLogout = async () => {
         if (isLoggingOut) return;
@@ -152,11 +167,29 @@ export default function Navbar() {
 
                     {/* Actions a Droite (Theme, Profil, Auth) */}
                     <div className="flex items-center gap-2.5">
+                        {/* Bouton Palette de Commandes (⌘K) */}
+                        <button
+                            type="button"
+                            onClick={() => setIsCommandPaletteOpen(true)}
+                            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg border border-slate-200/80 dark:border-slate-700 transition-colors cursor-pointer"
+                            title="Ouvrir la palette de commandes (Ctrl+K)"
+                            aria-label="Recherche rapide"
+                        >
+                            <FiSearch className="w-3.5 h-3.5" />
+                            <span className="hidden md:inline font-medium">Recherche</span>
+                            <kbd className="text-[10px] font-mono text-slate-400 bg-white dark:bg-slate-900 px-1 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                                ⌘K
+                            </kbd>
+                        </button>
+
+                        {/* Centre de Notifications In-App */}
+                        {isAuthenticated && <NotificationBell />}
+
                         {/* Bouton Bascule Theme */}
                         <button
                             type="button"
                             onClick={toggleTheme}
-                            className="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 transition-colors"
+                            className="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 transition-colors cursor-pointer"
                             aria-label={isDark ? "Activer le mode clair" : "Activer le mode sombre"}
                         >
                             {isDark ? (
@@ -360,6 +393,12 @@ export default function Navbar() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Palette de Commandes Globale (⌘K) */}
+            <CommandPalette
+                isOpen={isCommandPaletteOpen}
+                onClose={() => setIsCommandPaletteOpen(false)}
+            />
         </header>
     );
 }

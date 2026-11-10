@@ -181,11 +181,21 @@ USE_I18N = True
 USE_TZ = True
 
 # ============================================================================
-# FICHIERS STATIQUES
+# FICHIERS STATIQUES & MEDIAS (PIECES JOINTES SECURISEES)
 # ============================================================================
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 Mo max
+ALLOWED_ATTACHMENT_TYPES = [
+    'application/pdf',
+    'image/png',
+    'image/jpeg',
+    'image/webp',
+]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

@@ -1,12 +1,13 @@
 /**
  * Page de creation de requete professionnelle pour UQO-Requests.
  * Integre validation en direct, protection anti-double clic via RobustButton,
- * retours toast et gestion securisee des erreurs API.
+ * sauvegarde automatique de brouillons (Auto-Save Draft), pieces jointes securisees
+ * et retours toast.
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
     FiArrowLeft, 
     FiFileText, 
@@ -15,11 +16,16 @@ import {
     FiTag, 
     FiCheckCircle, 
     FiAlertCircle, 
-    FiShield 
+    FiShield,
+    FiPaperclip,
+    FiTrash2,
+    FiFile,
+    FiRotateCcw
 } from 'react-icons/fi';
 import { HiOutlineAcademicCap } from 'react-icons/hi2';
 import { api, getSafeApiErrorMessage } from '../api/client';
 import { cn } from '../utils/cn';
+import { safeStorage, safeJsonParse } from '../utils/safeUtils';
 import RobustButton from '../components/RobustButton';
 import { useToast } from '../context/ToastContext';
 
@@ -50,22 +56,88 @@ const REQUEST_TYPES = [
     },
 ];
 
+const DRAFT_STORAGE_KEY = 'uqo_request_draft';
+
 export default function CreateRequest() {
-    const [formData, setFormData] = useState({
-        title: '',
-        type: 'ACADEMIC',
-        description: '',
+    const [formData, setFormData] = useState(() => {
+        const savedDraft = safeJsonParse(safeStorage.getItem(DRAFT_STORAGE_KEY));
+        return savedDraft || {
+            title: '',
+            type: 'ACADEMIC',
+            description: '',
+        };
     });
 
+    const [hasDraftRestored, setHasDraftRestored] = useState(() => {
+        return Boolean(safeStorage.getItem(DRAFT_STORAGE_KEY));
+    });
+
+    const [lastSavedTime, setLastSavedTime] = useState(null);
+    const [attachment, setAttachment] = useState(null);
+    const [fileError, setFileError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const fileInputRef = useRef(null);
+
     const navigate = useNavigate();
     const { showToast } = useToast();
+
+    // Sauvegarde automatique du brouillon avec debouncing
+    useEffect(() => {
+        if (!formData.title && !formData.description) return;
+
+        const timer = setTimeout(() => {
+            safeStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formData));
+            const now = new Date();
+            setLastSavedTime(
+                now.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            );
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [formData]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         if (error) setError(null);
+    };
+
+    const handleClearDraft = () => {
+        safeStorage.removeItem(DRAFT_STORAGE_KEY);
+        setFormData({
+            title: '',
+            type: 'ACADEMIC',
+            description: '',
+        });
+        setHasDraftRestored(false);
+        setLastSavedTime(null);
+        showToast({
+            type: 'info',
+            title: 'Brouillon réinitialisé',
+            message: 'Le formulaire a été remis à zéro.',
+        });
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0];
+        setFileError(null);
+        if (!file) return;
+
+        // Validation taille (5 Mo max)
+        if (file.size > 5 * 1024 * 1024) {
+            setFileError("Le fichier dépasse la limite autorisée de 5 Mo.");
+            return;
+        }
+
+        // Validation format
+        const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            setFileError("Format non supporté. Formats acceptés : PDF, PNG, JPG, WEBP.");
+            return;
+        }
+
+        setAttachment(file);
     };
 
     const isTitleValid = formData.title.trim().length >= 5;
@@ -93,19 +165,41 @@ export default function CreateRequest() {
         setError(null);
 
         try {
+            // 1. Création de la demande
             const response = await api.createRequest({
                 title: formData.title.trim(),
                 type: formData.type,
                 description: formData.description.trim(),
             });
 
+            const createdId = response.data.id;
+
+            // 2. Téléversement de la pièce jointe si présente
+            if (attachment) {
+                try {
+                    const uploadData = new FormData();
+                    uploadData.append('file', attachment);
+                    await api.uploadAttachment(createdId, uploadData);
+                } catch (uploadErr) {
+                    console.error('[CreateRequest] Erreur lors du téléversement du justificatif:', uploadErr);
+                    showToast({
+                        type: 'warning',
+                        title: 'Justificatif non téléversé',
+                        message: 'La requête a été créée, mais la pièce jointe n\'a pu être ajoutée. Vous pouvez l\'ajouter depuis le dossier.',
+                    });
+                }
+            }
+
+            // Purge du brouillon
+            safeStorage.removeItem(DRAFT_STORAGE_KEY);
+
             showToast({
                 type: 'success',
-                title: 'Requête transmise',
+                title: 'Requête transmise avec succès',
                 message: 'Votre dossier a été enregistré et assigné aux services compétents.',
             });
 
-            navigate(`/requests/${response.data.id}`, {
+            navigate(`/requests/${createdId}`, {
                 state: { message: 'Votre requête a été transmise avec succès au service concerné.' }
             });
         } catch (err) {
@@ -132,18 +226,45 @@ export default function CreateRequest() {
                 className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md p-6 sm:p-8 space-y-8"
             >
                 {/* En-tete du Formulaire */}
-                <div className="pb-6 border-b border-slate-100 dark:border-slate-800">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-2 ring-1 ring-emerald-500/20">
-                        <FiShield className="w-3.5 h-3.5" />
-                        <span>Transmission Directe & Chiffrée</span>
+                <div className="pb-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-2 ring-1 ring-emerald-500/20">
+                            <FiShield className="w-3.5 h-3.5" />
+                            <span>Transmission Directe & Chiffrée</span>
+                        </div>
+                        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                            Déposer une nouvelle requête
+                        </h1>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Précisez la nature de votre demande pour une prise en charge rapide par le personnel administratif.
+                        </p>
                     </div>
-                    <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                        Déposer une nouvelle requête
-                    </h1>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Précisez la nature de votre demande pour une prise en charge rapide par le personnel administratif.
-                    </p>
+
+                    {/* Indicateur de Brouillon Automatique */}
+                    {lastSavedTime && (
+                        <div className="flex items-center gap-2 self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>Brouillon sauvé à {lastSavedTime}</span>
+                        </div>
+                    )}
                 </div>
+
+                {/* Bannière de Restauration de Brouillon */}
+                {hasDraftRestored && (
+                    <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200">
+                        <div className="flex items-center gap-2">
+                            <FiRotateCcw className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                            <span>Votre brouillon précédent a été automatiquement restauré.</span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleClearDraft}
+                            className="font-semibold underline hover:text-amber-700 dark:hover:text-amber-100 cursor-pointer"
+                        >
+                            Réinitialiser
+                        </button>
+                    </div>
+                )}
 
                 {/* Message d'Erreur Sécurisé */}
                 {error && (
@@ -263,6 +384,64 @@ export default function CreateRequest() {
                             <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500" />
                             <span>Les renseignements transmis sont traités confidentiellement selon la Loi 25.</span>
                         </p>
+                    </div>
+
+                    {/* Pièce Justificative (Optionnelle) */}
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                            Pièce justificative (Optionnel)
+                        </label>
+
+                        {attachment ? (
+                            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-50/40 dark:bg-emerald-950/20 text-xs">
+                                <div className="flex items-center gap-2.5 truncate">
+                                    <FiFile className="w-5 h-5 text-emerald-600 shrink-0" />
+                                    <div className="truncate">
+                                        <p className="font-semibold text-slate-900 dark:text-white truncate">
+                                            {attachment.name}
+                                        </p>
+                                        <p className="text-slate-400 font-mono text-[10px]">
+                                            {(attachment.size / (1024 * 1024)).toFixed(2)} Mo
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setAttachment(null)}
+                                    className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
+                                    title="Retirer ce document"
+                                >
+                                    <FiTrash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ) : (
+                            <div
+                                onClick={() => fileInputRef.current?.click()}
+                                className="border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-2xl p-6 text-center cursor-pointer transition-colors"
+                            >
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".pdf,.png,.jpg,.jpeg,.webp"
+                                    onChange={handleFileChange}
+                                    className="sr-only"
+                                />
+                                <FiPaperclip className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                                <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                                    Cliquer pour joindre un document justificatif
+                                </p>
+                                <p className="text-[11px] text-slate-400 mt-1">
+                                    PDF, PNG, JPG ou WEBP jusqu'à 5 Mo.
+                                </p>
+                            </div>
+                        )}
+
+                        {fileError && (
+                            <p className="text-xs text-rose-600 dark:text-rose-400 mt-1.5 flex items-center gap-1">
+                                <FiAlertCircle className="w-3.5 h-3.5" />
+                                <span>{fileError}</span>
+                            </p>
+                        )}
                     </div>
 
                     {/* Boutons d'Action Robustes */}
